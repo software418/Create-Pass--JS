@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VisitorType {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("active")
+}
+
+model VisitingArea {
+  id          String   @id @default(uuid())
+  name        String
+  floor       String
+  description String
+  status      String   @default("active")
+}
+
+model Purpose {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("active")
+}
+
+model Employee {
+  id          String   @id @default(uuid())
+  name        String
+  employeeId  String
+  department  String
+  designation String?
+  email       String?
+  phone       String?
+  status      String   @default("active")
+}
+
+model CarryWith {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("active")
+}
+
+model FormData {
+  id                      String         @id @default(uuid())
+  gatePassType            String
+  passDate                DateTime
+  from                    DateTime?
+  to                      DateTime?
+  mobileNo                String
+  name                    String
+  emailId                 String
+  companyName             String?
+  address                 String?
+  state                   String?
+  city                    String?
+  representingVisitorType String?
+  subLocation             String?
+  toMeetWith              String?
+  carryWith               Json?
+  idType                  String?
+  idNumber                String?
+  description             String?
+  maskCovid               String?        @default("")
+  noOfPerson              Int            @default(0)
+  visitArea               Json?
+  purpose                 String?
+  allowedHours            String?
+  photoUrl                String         @default("")
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+
+  persons                 PersonDetail[]
+}
+
+model PersonDetail {
+  id            String   @id @default(uuid())
+  formDataId    String
+  formData      FormData @relation(fields: [formDataId], references: [id], onDelete: Cascade)
+  name          String
+  phoneNo       String
+  aadharNumber  String
+  aadharFileUrl String   @default("")
+}

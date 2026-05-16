@@ -8,3 +8,5 @@ logs
 uploads/
 
 src/uploads/
+
+/src/generated/prisma

@@ -5,12 +5,6 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod };
   };
 Object.defineProperty(exports, "__esModule", { value: true });
-const mongoose_1 = __importDefault(require("mongoose"));
-const employee_model_1 = require("../features/master/employee.model");
-const purpose_model_1 = require("../features/master/purpose.model");
-const carry_with_model_1 = require("../features/master/carry_with.model");
-const visiting_area_model_1 = require("../features/master/visiting_area.model");
-const visitor_type_model_1 = require("../features/master/visitor_type.model");
 const logger_utils_1 = __importDefault(require("../utils/logger.utils"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -354,42 +348,44 @@ const employees = [
 // ─────────────────────────────────────────────────────────────
 // SEED RUNNER
 // ─────────────────────────────────────────────────────────────
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
 const seed = async () => {
-  try {
-    await mongoose_1.default.connect(MONGO_URI);
-    console.log("✅  Connected to MongoDB");
-    // Clear existing data
-    await Promise.all([
-      visitor_type_model_1.VisitorType.deleteMany({}),
-      purpose_model_1.Purpose.deleteMany({}),
-      visiting_area_model_1.VisitingArea.deleteMany({}),
-      carry_with_model_1.CarryWith.deleteMany({}),
-      employee_model_1.Employee.deleteMany({}),
-    ]);
-    console.log("🗑️   Cleared existing master data");
-    // Insert fresh data
-    const [vt, pu, va, cw, em] = await Promise.all([
-      visitor_type_model_1.VisitorType.insertMany(visitorTypes),
-      purpose_model_1.Purpose.insertMany(purposes),
-      visiting_area_model_1.VisitingArea.insertMany(visitingAreas),
-      carry_with_model_1.CarryWith.insertMany(carryWithItems),
-      employee_model_1.Employee.insertMany(employees),
-    ]);
-    console.log(`\n📊  Seeded successfully:`);
-    console.log(`    VisitorType   → ${vt.length} records`);
-    console.log(`    Purpose       → ${pu.length} records`);
-    console.log(`    VisitingArea  → ${va.length} records`);
-    console.log(`    CarryWith     → ${cw.length} records`);
-    console.log(`    Employee      → ${em.length} records`);
-    console.log(
-      `\n✅  Total: ${vt.length + pu.length + va.length + cw.length + em.length} records inserted`,
-    );
-  } catch (err) {
-    console.error("❌  Seed failed:", err);
-    process.exit(1);
-  } finally {
-    await mongoose_1.default.disconnect();
-    console.log("🔌  Disconnected from MongoDB");
-  }
+    try {
+        console.log("✅  Connected to Database via Prisma");
+
+        // Clear existing data
+        await prisma.visitorType.deleteMany({});
+        await prisma.purpose.deleteMany({});
+        await prisma.visitingArea.deleteMany({});
+        await prisma.carryWith.deleteMany({});
+        await prisma.employee.deleteMany({});
+        console.log("🗑️   Cleared existing master data");
+
+        // Insert fresh data
+        const vt = await prisma.visitorType.createMany({ data: visitorTypes });
+        const pu = await prisma.purpose.createMany({ data: purposes });
+        const va = await prisma.visitingArea.createMany({ data: visitingAreas });
+        const cw = await prisma.carryWith.createMany({ data: carryWithItems });
+        const em = await prisma.employee.createMany({ data: employees });
+
+        console.log(`\n📊  Seeded successfully:`);
+        console.log(`    VisitorType   → ${vt.count} records`);
+        console.log(`    Purpose       → ${pu.count} records`);
+        console.log(`    VisitingArea  → ${va.count} records`);
+        console.log(`    CarryWith     → ${cw.count} records`);
+        console.log(`    Employee      → ${em.count} records`);
+
+        console.log(
+            `\n✅  Total: ${vt.count + pu.count + va.count + cw.count + em.count} records inserted`,
+        );
+    } catch (err) {
+        console.error("❌  Seed failed:", err);
+        process.exit(1);
+    } finally {
+        await prisma.$disconnect();
+        console.log("🔌  Disconnected from Database");
+    }
 };
 seed();

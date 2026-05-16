@@ -39,25 +39,23 @@ const errorHandler = (err, req, res, next) => {
   let errorCode = err.errorCode || "SERVER_ERROR";
   let message = err.message || "Something went Wrong";
   let errors = [];
-  // ─── Mongoose: duplicate key ──────────────────
-  if (err.code === 11000) {
+  // ─── Prisma: duplicate key ──────────────────
+  if (err.code === "P2002") {
     statusCode = 409;
     errorCode = "CONFLICT";
-    const field = Object.keys(err.keyValue)[0];
-    message = `${field.charAt(0).toUpperCase() + field.slice(1)} already in use`;
+    const target = err.meta?.target;
+    message = `${target ? target : 'Field'} already in use`;
   }
-  // ─── Mongoose: validation error ────────────────────────────────────────────
-  if (err.name === "ValidationError" && err.errors) {
+  
+  // ─── Prisma: validation / not found ────────────────────────────────────────────
+  if (err.name === "PrismaClientValidationError") {
     statusCode = 400;
     errorCode = "VALIDATION_ERROR";
     message = "Validation Failed";
-    errors = Object.values(err.errors).map((e) => ({
-      field: e.path,
-      message: e.message,
-    }));
   }
-  // ─── Mongoose: invalid ObjectId ────────────────────────────────────────────
-  if (err.name === "CastError") {
+
+  // ─── Prisma: Record Not Found ────────────────────────────────────────────
+  if (err.code === "P2025") {
     statusCode = 404;
     errorCode = "NOT_FOUND";
     message = "Resource not found";
