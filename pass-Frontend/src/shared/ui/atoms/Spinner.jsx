@@ -1,13 +1,13 @@
 import { cn } from "../../utils/cn";
 export const Spinner = ({ className, size = "md" }) => {
   const sizes = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8",
-    lg: "h-12 w-12",
+    sm: "spinner-sm",
+    md: "spinner-md",
+    lg: "spinner-lg",
   };
   return (
     <svg
-      className={cn("animate-spin text-primary", sizes[size], className)}
+      className={cn("spinner", sizes[size], className)}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

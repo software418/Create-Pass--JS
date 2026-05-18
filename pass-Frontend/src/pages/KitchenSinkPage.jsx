@@ -23,12 +23,12 @@ import { Modal } from "../shared/ui/organisms/Modal";
 const KitchenSinkPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   return (
-    <div className="space-y-12 pb-24">
+    <div className="ks-page">
       {
         <div>
           {<Typography variant="h1">Kitchen Sink (UI Components)</Typography>}
           {
-            <Typography variant="muted" className="mt-2">
+            <Typography variant="muted" className="ks-subtitle">
               A comprehensive preview of all universal UI components built from
               scratch.
             </Typography>
@@ -36,13 +36,13 @@ const KitchenSinkPage = () => {
         </div>
       }
       {
-        <section className="space-y-6 border-b pb-8">
+        <section className="ks-section">
           {<Typography variant="h2">Atoms</Typography>}
           {
-            <div className="space-y-4">
+            <div className="ks-group">
               {<Typography variant="h4">Buttons</Typography>}
               {
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="ks-flex-wrap">
                   {<Button variant="primary">Primary</Button>}
                   {<Button variant="secondary">Secondary</Button>}
                   {<Button variant="outline">Outline</Button>}
@@ -58,16 +58,16 @@ const KitchenSinkPage = () => {
             </div>
           }
           {
-            <div className="space-y-4 pt-4">
+            <div className="ks-group-pt">
               {<Typography variant="h4">Badges & Avatars</Typography>}
               {
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="ks-flex-wrap">
                   {<Badge variant="default">Default</Badge>}
                   {<Badge variant="secondary">Secondary</Badge>}
                   {<Badge variant="destructive">Destructive</Badge>}
                   {<Badge variant="outline">Outline</Badge>}
                   {
-                    <div className="ml-8 flex items-center gap-4">
+                    <div className="ks-avatar-group">
                       {<Avatar fallback="JD" size="sm" />}
                       {<Avatar fallback="JD" size="md" />}
                       {<Avatar fallback="JD" size="lg" />}
@@ -78,10 +78,10 @@ const KitchenSinkPage = () => {
             </div>
           }
           {
-            <div className="space-y-4 pt-4">
+            <div className="ks-group-pt">
               {<Typography variant="h4">Loaders</Typography>}
               {
-                <div className="flex gap-4 items-center">
+                <div className="ks-flex">
                   {<Spinner size="sm" />}
                   {<Spinner size="md" />}
                   {<Spinner size="lg" />}
@@ -92,12 +92,12 @@ const KitchenSinkPage = () => {
         </section>
       }
       {
-        <section className="space-y-6 border-b pb-8">
+        <section className="ks-section">
           {<Typography variant="h2">Molecules</Typography>}
           {
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="ks-grid-2">
               {
-                <div className="space-y-4">
+                <div className="ks-group">
                   {<Typography variant="h4">Form Elements</Typography>}
                   {
                     <FormField label="Email Address">
@@ -118,7 +118,7 @@ const KitchenSinkPage = () => {
                     </FormField>
                   }
                   {
-                    <div className="flex items-center space-x-2 pt-2">
+                    <div className="ks-checkbox-group">
                       {<Checkbox id="terms" />}
                       {
                         <Label htmlFor="terms">
@@ -128,15 +128,15 @@ const KitchenSinkPage = () => {
                     </div>
                   }
                   {
-                    <div className="pt-4">
-                      {<Label className="mb-2 block">Search Input</Label>}
+                    <div className="ks-search-group">
+                      {<Label className="ks-search-label">Search Input</Label>}
                       {<SearchInput />}
                     </div>
                   }
                 </div>
               }
               {
-                <div className="space-y-4">
+                <div className="ks-group">
                   {<Typography variant="h4">Alerts</Typography>}
                   {
                     <Alert variant="default" title="Info Alert">
@@ -163,14 +163,14 @@ const KitchenSinkPage = () => {
             </div>
           }
           {
-            <div className="pt-8">
+            <div className="ks-card-container">
               {
                 <Typography variant="h4" className="mb-4">
                   Cards
                 </Typography>
               }
               {
-                <Card className="max-w-sm">
+                <Card className="ks-card">
                   {
                     <CardHeader>
                       {<CardTitle>Create project</CardTitle>}
@@ -206,7 +206,7 @@ const KitchenSinkPage = () => {
         <section className="space-y-6">
           {<Typography variant="h2">Organisms</Typography>}
           {
-            <div className="space-y-4">
+            <div className="ks-group">
               {<Typography variant="h4">Modals</Typography>}
               {<Button onClick={() => setIsModalOpen(true)}>Open Modal</Button>}
               {
@@ -216,13 +216,13 @@ const KitchenSinkPage = () => {
                   title="Confirm Action"
                 >
                   {
-                    <div className="py-4 text-muted-foreground">
+                    <div className="ks-modal-text">
                       Are you sure you want to completely delete this account?
                       This action cannot be undone.
                     </div>
                   }
                   {
-                    <div className="flex justify-end gap-2 mt-4">
+                    <div className="ks-modal-actions">
                       {
                         <Button
                           variant="outline"

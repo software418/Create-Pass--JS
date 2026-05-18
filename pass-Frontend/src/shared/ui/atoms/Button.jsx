@@ -13,26 +13,24 @@ export const Button = React.forwardRef(
     ref,
   ) => {
     const variants = {
-      primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-      secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      outline:
-        "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-      ghost: "hover:bg-accent hover:text-accent-foreground",
-      danger:
-        "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+      primary: "btn-primary",
+      secondary: "btn-secondary",
+      outline: "btn-outline",
+      ghost: "btn-ghost",
+      danger: "btn-danger",
     };
     const sizes = {
-      sm: "h-9 px-3 text-xs",
-      md: "h-10 px-4 py-2",
-      lg: "h-11 px-8 rounded-md",
-      icon: "h-10 w-10",
+      sm: "btn-sm",
+      md: "btn-md",
+      lg: "btn-lg",
+      icon: "btn-icon",
     };
     return (
       <button
         ref={ref}
         disabled={isLoading || props.disabled}
         className={cn(
-          "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "btn",
           variants[variant],
           sizes[size],
           className,
@@ -41,7 +39,7 @@ export const Button = React.forwardRef(
       >
         {isLoading && (
           <svg
-            className="mr-2 h-4 w-4 animate-spin"
+            className="btn-loading-icon"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

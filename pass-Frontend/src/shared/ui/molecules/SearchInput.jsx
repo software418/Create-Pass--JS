@@ -4,15 +4,15 @@ import { Input } from "../atoms/Input";
 import { cn } from "../../utils/cn";
 export const SearchInput = React.forwardRef(({ className, ...props }, ref) => {
   return (
-    <div className="relative w-full max-w-sm">
+    <div className="search-input-wrapper">
       {
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="search-input-icon" />
       }
       {
         <Input
           type="search"
           placeholder="Search..."
-          className={cn("pl-8", className)}
+          className={cn("search-input-field", className)}
           ref={ref}
           {...props}
         />

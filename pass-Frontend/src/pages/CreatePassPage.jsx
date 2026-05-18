@@ -248,25 +248,25 @@ const CreatePassPage = () => {
   // };
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="page-container">
       {
-        <Card className="max-w-6xl mx-auto shadow-lg bg-surface">
+        <Card className="page-card">
           {<CardHeader>{<CardTitle>Create Gate Pass</CardTitle>}</CardHeader>}
           {
-            <CardContent className="p-8">
+            <CardContent className="page-card-content">
               {
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="form-container">
                   {
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="form-grid-2">
                       {
                         <FormField
                           label="Gate Pass Type"
                           htmlFor="gatepass-type-single"
                         >
                           {
-                            <div className="space-y-3">
+                            <div className="form-radio-group">
                               {["single", "multi"].map((type) => (
-                                <label className="flex items-center cursor-pointer">
+                                <label className="form-radio-label">
                                   {
                                     <input
                                       type="radio"
@@ -275,11 +275,11 @@ const CreatePassPage = () => {
                                       value={type}
                                       checked={formData.gatePassType === type}
                                       onChange={handleInputChange}
-                                      className="w-4 h-4 accent-teal-600"
+                                      className="form-radio-input"
                                     />
                                   }
                                   {
-                                    <span className="ml-3 text-sm font-medium capitalize">
+                                    <span className="form-radio-text">
                                       {type === "single"
                                         ? "Single Day"
                                         : "Multi Day"}
@@ -339,14 +339,14 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="space-y-6 border-t-2 border-gray-200 pt-6">
+                    <div className="form-section">
                       {
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="form-section-title">
                           Personal Information
                         </h3>
                       }
                       {
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="form-grid-2 gap-6">
                           {
                             <FormField label="Name" htmlFor="name">
                               {
@@ -400,7 +400,7 @@ const CreatePassPage = () => {
                                   onChange={handleInputChange}
                                   placeholder="Enter address"
                                   autoComplete="address"
-                                  className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none resize-none"
+                                  className="form-textarea"
                                   rows={3}
                                 />
                               }
@@ -409,7 +409,7 @@ const CreatePassPage = () => {
                         </div>
                       }
                       {
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="form-grid-2 gap-6">
                           {
                             <FormField
                               label="Company Name"
@@ -430,7 +430,7 @@ const CreatePassPage = () => {
                         </div>
                       }
                       {
-                        <div className="grid grid-cols-2 gap-6">
+                        <div className="form-grid-2 gap-6">
                           {
                             <FormField label="State" htmlFor="state">
                               {
@@ -439,7 +439,7 @@ const CreatePassPage = () => {
                                   id="state"
                                   value={formData.state}
                                   onChange={handleStateChange}
-                                  className="w-full px-3 py-2 border-b-2 border-gray-300\r\n                    focus:border-red-600 focus:outline-none bg-white"
+                                  className="form-select"
                                 >
                                   {<option value="">Select State</option>}
                                   {states.map((s) => (
@@ -458,7 +458,7 @@ const CreatePassPage = () => {
                                   value={formData.city}
                                   disabled={!formData.state}
                                   onChange={handleInputChange}
-                                  className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none bg-white disabled:bg-gray-100"
+                                  className="form-select-disabled"
                                 >
                                   {<option value="">Select City</option>}
                                   {cities.map((c) => (
@@ -473,7 +473,7 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="form-grid-2 gap-6">
                       {
                         <FormField
                           label="Representing Visitor Type"
@@ -485,7 +485,7 @@ const CreatePassPage = () => {
                               id="representingVisitorType"
                               value={formData.representingVisitorType}
                               onChange={handleInputChange}
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none bg-white"
+                              className="form-select"
                             >
                               {<option value="">Select Visitor Type</option>}
                               {visitorType.map((v) => (
@@ -503,7 +503,7 @@ const CreatePassPage = () => {
                               id="subLocation"
                               value={formData.subLocation}
                               onChange={handleInputChange}
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none bg-white"
+                              className="form-select"
                             >
                               {<option value="">Select</option>}
                               {<option value="MAIN">MAIN</option>}
@@ -516,7 +516,7 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="form-grid-2 gap-6">
                       {
                         <FormField
                           label="To Meet with Employee"
@@ -528,7 +528,7 @@ const CreatePassPage = () => {
                               id="toMeetWith"
                               value={formData.toMeetWith}
                               onChange={handleInputChange}
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none bg-white"
+                              className="form-select"
                             >
                               {<option value="">Select</option>}
                               {employees.map((e) => (
@@ -541,9 +541,9 @@ const CreatePassPage = () => {
                       {
                         <FormField label="Carry With" htmlFor="carryWith">
                           {
-                            <div className="space-y-2">
+                            <div className="form-radio-group-compact">
                               {carryWith.map((c) => (
-                                <label className="flex items-center cursor-pointer">
+                                <label className="form-radio-label">
                                   {
                                     <Checkbox
                                       id={`carryWith-${c._id}`}
@@ -564,7 +564,7 @@ const CreatePassPage = () => {
                                     />
                                   }
                                   {
-                                    <span className="ml-2 text-sm uppercase">
+                                    <span className="form-radio-text-sm">
                                       {c.name}
                                     </span>
                                   }
@@ -577,7 +577,7 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="grid grid-cols-2 gap-6 border-t-2 border-gray-200 pt-6">
+                    <div className="form-section form-grid-2 gap-6">
                       {
                         <FormField label="ID Type" htmlFor="idType">
                           {
@@ -586,7 +586,7 @@ const CreatePassPage = () => {
                               id="idType"
                               value={formData.idType}
                               onChange={handleInputChange}
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none bg-white"
+                              className="form-select"
                             >
                               {<option value="PASSPORT">PASSPORT</option>}
                               {<option value="AADHAR">AADHAR</option>}
@@ -613,7 +613,7 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="form-grid-2 gap-6">
                       {
                         <FormField label="Description" htmlFor="description">
                           {
@@ -623,7 +623,7 @@ const CreatePassPage = () => {
                               value={formData.description}
                               onChange={handleInputChange}
                               placeholder="Enter description"
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 focus:border-red-600 focus:outline-none resize-none"
+                              className="form-textarea"
                               rows={3}
                             />
                           }
@@ -637,9 +637,9 @@ const CreatePassPage = () => {
                               htmlFor="maskCovid"
                             >
                               {
-                                <div className="space-y-2">
+                                <div className="form-radio-group-compact">
                                   {["yes", "no"].map((val) => (
-                                    <label className="flex items-center cursor-pointer">
+                                    <label className="form-radio-label">
                                       {
                                         <input
                                           type="radio"
@@ -648,11 +648,11 @@ const CreatePassPage = () => {
                                           value={val}
                                           checked={formData.maskCovid === val}
                                           onChange={handleInputChange}
-                                          className="w-4 h-4 accent-teal-600"
+                                          className="form-radio-input"
                                         />
                                       }
                                       {
-                                        <span className="ml-2 text-sm capitalize">
+                                        <span className="form-radio-text-sm">
                                           {val}
                                         </span>
                                       }
@@ -685,16 +685,16 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="border-t-2 border-gray-200 pt-6">
+                    <div className="form-section">
                       {
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        <h3 className="form-section-title-mb">
                           Person Details
                         </h3>
                       }
                       {formData.persons.map((person, index) => (
-                        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div className="person-card">
                           {
-                            <div className="grid grid-cols-4 gap-4">
+                            <div className="form-grid-4">
                               {
                                 <FormField
                                   label="Person Name"
@@ -790,7 +790,7 @@ const CreatePassPage = () => {
                                       {
                                         <label
                                           htmlFor={`file-${index}`}
-                                          className="px-3 py-2 bg-white border border-gray-300 rounded cursor-pointer text-xs"
+                                          className="form-file-label"
                                         >
                                           {person.aadharFile
                                             ? person.aadharFile.name
@@ -801,7 +801,7 @@ const CreatePassPage = () => {
                                         <Button
                                           type="button"
                                           onClick={() => removePerson(index)}
-                                          className="bg-red-600 text-white text-xs px-2 py-1"
+                                          className="person-remove-btn"
                                         >
                                           X
                                         </Button>
@@ -818,7 +818,7 @@ const CreatePassPage = () => {
                         <Button
                           type="button"
                           onClick={addPerson}
-                          className="bg-red-600 text-white px-4 py-2"
+                          className="person-add-btn"
                         >
                           + Add Person
                         </Button>
@@ -826,16 +826,16 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="border-t-2 border-gray-200 pt-6">
+                    <div className="form-section">
                       {
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        <h3 className="form-section-title-mb">
                           Visit Area
                         </h3>
                       }
                       {
                         <div className="grid grid-cols-3 gap-4">
                           {visitorArea.map((v) => (
-                            <label className="flex items-center cursor-pointer">
+                            <label className="form-radio-label">
                               {
                                 <Checkbox
                                   checked={formData.visitArea.includes(v.name)}
@@ -852,7 +852,7 @@ const CreatePassPage = () => {
                                   value={v.name}
                                 />
                               }
-                              {<span className="ml-2 text-sm">{v.name}</span>}
+                              {<span className="form-radio-text-sm">{v.name}</span>}
                             </label>
                           ))}
                         </div>
@@ -860,7 +860,7 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="grid grid-cols-2 gap-6 border-t-2 border-gray-200 pt-6">
+                    <div className="form-section form-grid-2 gap-6">
                       {
                         <FormField label="Purpose" htmlFor="purpose">
                           {
@@ -869,7 +869,7 @@ const CreatePassPage = () => {
                               id="purpose"
                               value={formData.purpose}
                               onChange={handleInputChange}
-                              className="w-full px-3 py-2 border-b-2 border-gray-300 outline-none"
+                              className="form-select"
                             >
                               {<option value="">Select</option>}
                               {purposes.map((e) => (
@@ -894,9 +894,9 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="border-t-2 border-gray-200 pt-6">
+                    <div className="form-section">
                       {
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        <h3 className="form-section-title-mb">
                           Visitor Photo
                         </h3>
                       }
@@ -911,12 +911,12 @@ const CreatePassPage = () => {
                     </div>
                   }
                   {
-                    <div className="flex gap-4 justify-center border-t-2 border-gray-200 pt-6">
+                    <div className="form-actions">
                       {
                         <Button
                           type="submit"
                           disabled={isSubmitting}
-                          className="px-8 py-2 bg-red-600 text-white font-semibold rounded disabled:opacity-60"
+                          className="btn btn-danger px-8 py-2"
                         >
                           {isSubmitting ? "Submitting…" : "Submit"}
                         </Button>
@@ -925,7 +925,7 @@ const CreatePassPage = () => {
                         <Button
                           type="button"
                           onClick={handleClear}
-                          className="px-8 py-2 bg-gray-500 text-white font-semibold rounded"
+                          className="btn btn-secondary px-8 py-2"
                         >
                           Clear
                         </Button>

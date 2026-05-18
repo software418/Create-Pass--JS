@@ -1,18 +1,18 @@
 import { Outlet } from "react-router-dom";
 export const AuthLayout = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+    <div className="auth-layout">
       {
-        <div className="w-full max-w-md">
+        <div className="auth-container">
           {
-            <div className="mb-8 text-center">
+            <div className="auth-header">
               {
-                <h1 className="text-3xl font-extrabold tracking-tight text-primary">
+                <h1 className="auth-title">
                   MERN Boilerplate
                 </h1>
               }
               {
-                <p className="text-muted-foreground mt-2">
+                <p className="auth-subtitle">
                   Sign in to your account to continue
                 </p>
               }

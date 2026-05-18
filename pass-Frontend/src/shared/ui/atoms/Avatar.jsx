@@ -3,14 +3,14 @@ import { cn } from "../../utils/cn";
 export const Avatar = ({ src, alt, fallback, size = "md", className }) => {
   const [error, setError] = useState(false);
   const sizes = {
-    sm: "h-8 w-8 text-xs",
-    md: "h-10 w-10 text-sm",
-    lg: "h-14 w-14 text-base",
+    sm: "avatar-sm",
+    md: "avatar-md",
+    lg: "avatar-lg",
   };
   return (
     <div
       className={cn(
-        "relative flex shrink-0 overflow-hidden rounded-full bg-muted flex-align-center justify-center",
+        "avatar",
         sizes[size],
         className,
       )}
@@ -19,11 +19,11 @@ export const Avatar = ({ src, alt, fallback, size = "md", className }) => {
         <img
           src={src}
           alt={alt}
-          className="aspect-square h-full w-full object-cover"
+          className="avatar-img"
           onError={() => setError(true)}
         />
       ) : (
-        <span className="flex h-full w-full items-center justify-center font-medium text-muted-foreground uppercase">
+        <span className="avatar-fallback">
           {fallback.substring(0, 2)}
         </span>
       )}

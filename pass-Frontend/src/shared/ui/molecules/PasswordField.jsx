@@ -6,11 +6,11 @@ export const PasswordField = React.forwardRef(
   ({ className, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
     return (
-      <div className="relative">
+      <div className="password-field-wrapper">
         {
           <Input
             type={showPassword ? "text" : "password"}
-            className={cn("pr-10", className)}
+            className={cn("password-field-input", className)}
             ref={ref}
             {...props}
           />
@@ -19,7 +19,7 @@ export const PasswordField = React.forwardRef(
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+            className="password-field-btn"
           >
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>

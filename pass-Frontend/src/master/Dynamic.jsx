@@ -33,22 +33,22 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
   };
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      className="dynamic-modal-overlay"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       {
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div className="dynamic-modal-container">
           {
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="dynamic-modal-header">
               {
-                <h2 className="text-base font-semibold text-gray-900">
+                <h2 className="dynamic-modal-title">
                   {title}
                 </h2>
               }
               {
                 <button
                   onClick={onClose}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                  className="dynamic-modal-close"
                 >
                   ✕
                 </button>
@@ -56,14 +56,14 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
             </div>
           }
           {
-            <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            <form onSubmit={handleSubmit} className="dynamic-modal-form">
               {fields.map((field) => (
                 <div>
                   {
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                    <label className="dynamic-label">
                       {field.label}
                       {field.required && (
-                        <span className="text-red-500 ml-0.5">*</span>
+                        <span className="dynamic-label-req">*</span>
                       )}
                     </label>
                   }
@@ -77,7 +77,7 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                         }))
                       }
                       required={field.required}
-                      className="w-full border border-gray-200 rounded-lg text-sm px-3 py-2.5 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                      className="dynamic-input"
                     >
                       {<option value="">Select {field.label}...</option>}
                       {field.options.map((opt) => (
@@ -99,18 +99,18 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                         `Enter ${field.label.toLowerCase()}...`
                       }
                       required={field.required}
-                      className="w-full border border-gray-200 rounded-lg text-sm px-3 py-2.5 bg-white text-gray-900 placeholder-gray-300 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                      className="dynamic-input"
                     />
                   )}
                 </div>
               ))}
               {
-                <div className="flex gap-3 pt-2">
+                <div className="dynamic-actions">
                   {
                     <button
                       type="button"
                       onClick={onClose}
-                      className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="dynamic-btn-cancel"
                     >
                       Cancel
                     </button>
@@ -118,7 +118,7 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                   {
                     <button
                       type="submit"
-                      className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+                      className="dynamic-btn-save"
                     >
                       Save
                     </button>
@@ -141,10 +141,10 @@ const Cell = ({ col, row, statusColors }) => {
     case "status": {
       const str = displayValue(value).toLowerCase();
       const cls =
-        statusColors[str] ?? "bg-gray-100 text-gray-600 border border-gray-200";
+        statusColors[str] ?? "dynamic-status-default";
       return (
         <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}`}
+          className={`dynamic-status-badge ${cls}`}
         >
           {str}
         </span>
@@ -152,14 +152,14 @@ const Cell = ({ col, row, statusColors }) => {
     }
     case "badge": {
       return (
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-800 border border-blue-200">
+        <span className="dynamic-badge">
           {displayValue(value)}
         </span>
       );
     }
     case "mono": {
       return (
-        <span className="font-mono text-xs font-semibold text-gray-700">
+        <span className="dynamic-mono">
           {displayValue(value)}
         </span>
       );
@@ -167,11 +167,11 @@ const Cell = ({ col, row, statusColors }) => {
     case "email": {
       const str = displayValue(value);
       return str === "—" ? (
-        <span className="text-gray-300">—</span>
+        <span className="dynamic-empty">—</span>
       ) : (
         <a
           href={`mailto:${str}`}
-          className="text-blue-600 hover:underline text-sm truncate max-w-40 block"
+          className="dynamic-email"
         >
           {str}
         </a>
@@ -180,11 +180,11 @@ const Cell = ({ col, row, statusColors }) => {
     case "phone": {
       const str = displayValue(value);
       return str === "—" ? (
-        <span className="text-gray-300">—</span>
+        <span className="dynamic-empty">—</span>
       ) : (
         <a
           href={`tel:${str}`}
-          className="text-gray-700 hover:text-blue-600 text-sm"
+          className="dynamic-phone"
         >
           {str}
         </a>
@@ -193,9 +193,9 @@ const Cell = ({ col, row, statusColors }) => {
     default: {
       const str = displayValue(value);
       return str === "—" ? (
-        <span className="text-gray-300">—</span>
+        <span className="dynamic-empty">—</span>
       ) : (
-        <span className="text-gray-800 text-sm">{str}</span>
+        <span className="dynamic-text">{str}</span>
       );
     }
   }

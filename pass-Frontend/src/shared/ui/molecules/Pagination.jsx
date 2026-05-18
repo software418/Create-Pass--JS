@@ -25,7 +25,7 @@ export const Pagination = ({
   };
   const lastPage = paginationRange[paginationRange.length - 1];
   return (
-    <ul className="flex items-center space-x-2">
+    <ul className="pagination-list">
       {
         <li>
           {
@@ -43,7 +43,7 @@ export const Pagination = ({
       {paginationRange.map((pageNumber, idx) => {
         if (pageNumber === DOTS) {
           return (
-            <li className="flex h-10 w-10 items-center justify-center">
+            <li className="pagination-dots">
               {<MoreHorizontal className="h-4 w-4" />}
             </li>
           );

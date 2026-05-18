@@ -3,14 +3,14 @@ import { cn } from "../../utils/cn";
 // FIX: Added 'htmlFor' to the destructured arguments list below
 export const FormField = ({ label, error, className, htmlFor, children }) => {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("form-field", className)}>
       {
-        <Label htmlFor={htmlFor} className={error ? "text-destructive" : ""}>
+        <Label htmlFor={htmlFor} className={error ? "form-field-label-error" : ""}>
           {label}
         </Label>
       }
       {children}
-      {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+      {error && <p className="form-field-error-text">{error}</p>}
     </div>
   );
 };
