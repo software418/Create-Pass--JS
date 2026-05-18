@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 class AppError extends Error {
   // 1. Declare property types here
   statusCode;
@@ -15,4 +13,4 @@ class AppError extends Error {
     // Use Error.captureStackTrace only if it exists (Node.js environments)
   }
 }
-exports.default = AppError;
+export default AppError;

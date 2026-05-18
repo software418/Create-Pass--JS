@@ -1,7 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const master_controller_1 = require("../master/master.controller");
+import * as express_1 from "express";
+import * as master_controller_1 from "../master/master.controller.js";
 const router = (0, express_1.Router)();
 // ─────────────────────────────────────────────────────────────
 // Employee Routes  →  /api/master/employee
@@ -38,4 +36,4 @@ router.get("/visitor-type", master_controller_1.getVisitorType);
 router.post("/visitor-type", master_controller_1.createVisitorType);
 router.put("/visitor-type/:id", master_controller_1.updateVisitorType);
 router.delete("/visitor-type/:id", master_controller_1.deleteVisitorType);
-exports.default = router;
+export default router;

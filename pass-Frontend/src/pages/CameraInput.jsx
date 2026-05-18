@@ -1,4 +1,3 @@
-import { jsx as _jsx } from "react/jsx-runtime";
 import {
   useRef,
   useState,
@@ -63,29 +62,34 @@ export const CameraInput = forwardRef(
         }
       };
     }, [capturedImage]);
-    return _jsx("div", {
-      style: {
-        width,
-        height,
-        position: "relative",
-        overflow: "hidden",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        backgroundColor: "#000",
-      },
-      children: capturedImage
-        ? _jsx("img", {
-            src: capturedImage,
-            alt: "Captured",
-            style: { width: "100%", height: "100%", objectFit: "cover" },
-          })
-        : _jsx("video", {
-            ref: videoRef,
-            autoPlay: true,
-            playsInline: true,
-            muted: true,
-            style: { width: "100%", height: "100%", objectFit: "cover" },
-          }),
-    });
+    return (
+      <div
+        style={{
+          width,
+          height,
+          position: "relative",
+          overflow: "hidden",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          backgroundColor: "#000",
+        }}
+      >
+        {capturedImage ? (
+          <img
+            src={capturedImage}
+            alt="Captured"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay={true}
+            playsInline={true}
+            muted={true}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        )}
+      </div>
+    );
   },
 );
