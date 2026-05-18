@@ -86,7 +86,41 @@ const getVisitorType = async (req, res, next) => {
     next(err);
   }
 };
-export { getVisitorType }; // ─────────────────────────────────────────────────────────────
+export { getVisitorType }; 
+const getDepartment = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} getDepartment → request received");
+    const department = await (0, master_service_1.getDepartmentService)();
+    res.status(200).json({
+      success: true,
+      message: "Department fetched successfully",
+      data: {
+        department
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { getDepartment }; 
+const getLocation = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} getLocation → request received");
+    const location  = await (0, master_service_1.getLocationService)();
+    res.status(200).json({
+      success: true,
+      message: "Location fetched successfully",
+      data: {
+        location
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { getLocation }; 
+
+// ─────────────────────────────────────────────────────────────
 // CREATE Controllers
 // ─────────────────────────────────────────────────────────────
 const createEmployee = async (req, res, next) => {
@@ -168,7 +202,41 @@ const createVisitorType = async (req, res, next) => {
     next(err);
   }
 };
-export { createVisitorType }; // ─────────────────────────────────────────────────────────────
+export { createVisitorType }; 
+const createDepartment = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} createDepartment → request received");
+    const department = await (0, master_service_1.createDepartmentService)(req.body);
+    res.status(201).json({
+      success: true,
+      message: "Department created successfully",
+      data: {
+        department
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { createDepartment };
+const createLocation = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} createLocation → request received");
+    const location  = await (0, master_service_1.createLocationService)(req.body);
+    res.status(201).json({
+      success: true,
+      message: "Location created successfully",
+      data: {
+        location
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { createLocation };
+
+// ─────────────────────────────────────────────────────────────
 // UPDATE Controllers
 // ─────────────────────────────────────────────────────────────
 const updateEmployee = async (req, res, next) => {
@@ -255,7 +323,43 @@ const updateVisitorType = async (req, res, next) => {
     next(err);
   }
 };
-export { updateVisitorType }; // ─────────────────────────────────────────────────────────────
+export { updateVisitorType }; 
+const updateDepartment = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} updateDepartment → request received for ID: ${id}`);
+    const department = await (0, master_service_1.updateDepartmentService)(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "Department updated successfully",
+      data: {
+        department
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { updateDepartment }; 
+const updateLocation = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} updateDepartment → request received for ID: ${id}`);
+    const location = await (0, master_service_1.updateLocationService)(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "Location updated successfully",
+      data: {
+        location
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { updateLocation }; 
+
+// ─────────────────────────────────────────────────────────────
 // DELETE Controllers
 // ─────────────────────────────────────────────────────────────
 const deleteEmployee = async (req, res, next) => {
@@ -343,3 +447,83 @@ const deleteVisitorType = async (req, res, next) => {
   }
 };
 export { deleteVisitorType };
+const deleteDepartment = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} deleteDepartment → request received for ID: ${id}`);
+    const department = await (0, master_service_1.deleteDepartmentService)(id);
+    res.status(200).json({
+      success: true,
+      message: "Department deleted successfully",
+      data: {
+        department
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { deleteDepartment };
+const deleteLocation = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} deleteLocation → request received for ID: ${id}`);
+    const location  = await (0, master_service_1.deleteLocationService)(id);
+    res.status(200).json({
+      success: true,
+      message: "Location deleted successfully",
+      data: {
+        location
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { deleteLocation };
+
+
+
+
+const getCompanyRegister = async (req, res, next) => {
+  try {
+    logger_utils_1.info(
+      "[CONTROLLER]{master/master.controller} getCompanyRegister → request received",
+    );
+    const companyRegister = await (0, master_service_1.getCompanyRegisterService)();
+    res.status(200).json({
+      success: true,
+      message: companyRegister
+        ? "Company registration fetched successfully"
+        : "No company registration on file",
+      data: {
+        companyRegister: companyRegister ?? null,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { getCompanyRegister };
+
+const updateCompanyRegister = async (req, res, next) => {
+  try {
+    logger_utils_1.info(
+      "[CONTROLLER]{master/master.controller} updateCompanyRegister → request received",
+    );
+    const companyRegister = await (0, master_service_1.upsertCompanyRegisterService)(
+      req.body,
+      req.file,
+    );
+    res.status(200).json({
+      success: true,
+      message: "Company registration updated successfully",
+      data: {
+        companyRegister,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { updateCompanyRegister };

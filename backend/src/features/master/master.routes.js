@@ -1,5 +1,6 @@
 import * as express_1 from "express";
 import * as master_controller_1 from "../master/master.controller.js";
+import { uploadLogo } from "../../middleware/upload.js";
 const router = (0, express_1.Router)();
 // ─────────────────────────────────────────────────────────────
 // Employee Routes  →  /api/master/employee
@@ -36,4 +37,30 @@ router.get("/visitor-type", master_controller_1.getVisitorType);
 router.post("/visitor-type", master_controller_1.createVisitorType);
 router.put("/visitor-type/:id", master_controller_1.updateVisitorType);
 router.delete("/visitor-type/:id", master_controller_1.deleteVisitorType);
+
+// ─────────────────────────────────────────────────────────────
+// Department  Routes  →  /api/master/department
+// ─────────────────────────────────────────────────────────────
+router.get("/department", master_controller_1.getDepartment);
+router.post("/department", master_controller_1.createDepartment);
+router.put("/department/:id", master_controller_1.updateDepartment);
+router.delete("/department/:id", master_controller_1.deleteDepartment);
+// ─────────────────────────────────────────────────────────────
+// Location  Routes  →  /api/master/location
+// ─────────────────────────────────────────────────────────────
+router.get("/location", master_controller_1.getDepartment);
+router.post("/location", master_controller_1.createDepartment);
+router.put("/location/:id", master_controller_1.updateDepartment);
+router.delete("/location/:id", master_controller_1.deleteDepartment);
+
+// ─────────────────────────────────────────────────────────────
+// Company Register  →  /api/v1/master/company-register (get + update only)
+// ─────────────────────────────────────────────────────────────
+router.get("/company-register", master_controller_1.getCompanyRegister);
+router.put(
+  "/company-register",
+  uploadLogo.single("logo"),
+  master_controller_1.updateCompanyRegister,
+);
+
 export default router;

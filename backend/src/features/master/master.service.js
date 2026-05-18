@@ -45,7 +45,26 @@ const getVisitorTypeService = async () => {
     }
   });
 };
-export { getVisitorTypeService }; // CREATE Services
+export { getVisitorTypeService }; 
+const getDepartmentService = async () => {
+  return await prisma.department.findMany({
+    where: {
+      status: "active"
+    }
+  });
+};
+export { getDepartmentService }; 
+const getLocationService = async () => {
+  return await prisma.location.findMany({
+    where: {
+      status: "active"
+    }
+  });
+};
+export { getLocationService }; 
+
+
+// CREATE Services
 const createEmployeeService = async data => {
   return await prisma.employee.create({
     data: {
@@ -90,7 +109,28 @@ const createVisitorTypeService = async data => {
     }
   });
 };
-export { createVisitorTypeService }; // UPDATE Services
+export { createVisitorTypeService }; 
+const createDepartmentService = async data => {
+  return await prisma.department.create({
+    data: {
+      ...data,
+      status: "active"
+    }
+  });
+};
+export { createDepartmentService }; 
+const createLocationService = async data => {
+  return await prisma.location.create({
+    data: {
+      ...data,
+      status: "active"
+    }
+  });
+};
+export { createLocationService };
+
+
+// UPDATE Services
 const updateEmployeeService = async (employeeId, data) => {
   const exist = await prisma.employee.findUnique({
     where: {
@@ -165,7 +205,40 @@ const updateVisitortypeService = async (visitorId, data) => {
     data
   });
 };
-export { updateVisitortypeService }; // DELETE Services
+export { updateVisitortypeService };
+const updateDepartmentService = async (departmentId, data) => {
+  const exist = await prisma.department.findUnique({
+    where: {
+      id: departmentId
+    }
+  });
+  if (!exist) throw new appError_1("department not found", 404, "NOT_FOUND");
+  return await prisma.department.update({
+    where: {
+      id: departmentId
+    },
+    data
+  });
+};
+export { updateDepartmentService };
+const updateLocationService = async (locationId, data) => {
+  const exist = await prisma.location.findUnique({
+    where: {
+      id: locationId
+    }
+  });
+  if (!exist) throw new appError_1("location not found", 404, "NOT_FOUND");
+  return await prisma.location.update({
+    where: {
+      id: locationId
+    },
+    data
+  });
+};
+export { updateLocationService };
+
+
+// DELETE Services
 const delteEmployeeService = async employeeId => {
   const exist = await prisma.employee.findUnique({
     where: {
@@ -241,3 +314,79 @@ const deleteVisitorTypeService = async visitorId => {
   });
 };
 export { deleteVisitorTypeService };
+const deleteDepartmentService = async departmentId => {
+  const exist = await prisma.department.findUnique({
+    where: {
+      id: departmentId
+    }
+  });
+  if (!exist) throw new appError_1("department not found", 404, "NOT_FOUND");
+  if (exist.status === "deleted") throw new appError_1("department is already deleted", 409, "CONFLICT");
+  return await prisma.department.delete({
+    where: {
+      id: departmentId
+    }
+  });
+};
+export { deleteDepartmentService };
+const deleteLocationService = async locationId => {
+  const exist = await prisma.location.findUnique({
+    where: {
+      id: locationId
+    }
+  });
+  if (!exist) throw new appError_1("Location not found", 404, "NOT_FOUND");
+  if (exist.status === "deleted") throw new appError_1("location is already deleted", 409, "CONFLICT");
+  return await prisma.location.delete({
+    where: {
+      id: locationId
+    }
+  });
+};
+export { deleteLocationService };
+
+
+
+
+const COMPANY_REGISTER_ID = "default";
+
+const getCompanyRegisterService = async () => {
+  return await prisma.companyRegister.findUnique({
+    where: { id: COMPANY_REGISTER_ID },
+  });
+};
+export { getCompanyRegisterService };
+
+const upsertCompanyRegisterService = async (data, logoFile) => {
+  const existing = await prisma.companyRegister.findUnique({
+    where: { id: COMPANY_REGISTER_ID },
+  });
+
+  let logoUrl = existing?.logoUrl ?? "";
+  if (logoFile?.filename) {
+    logoUrl = `/uploads/${logoFile.filename}`;
+  }
+
+  const payload = {
+    companyFullName: data.companyFullName ?? "",
+    companyShortName: data.companyShortName ?? "",
+    companyContactNo: data.companyContactNo ?? "",
+    logoUrl,
+    hostName: data.hostName ?? "",
+    portNo: Number.isFinite(Number(data.portNo)) ? Number(data.portNo) : 0,
+    userEmailId: data.userEmailId ?? "",
+    emailPassword: data.emailPassword ?? "",
+  };
+
+  if (existing) {
+    return await prisma.companyRegister.update({
+      where: { id: COMPANY_REGISTER_ID },
+      data: payload,
+    });
+  }
+
+  return await prisma.companyRegister.create({
+    data: { id: COMPANY_REGISTER_ID, ...payload },
+  });
+};
+export { upsertCompanyRegisterService };

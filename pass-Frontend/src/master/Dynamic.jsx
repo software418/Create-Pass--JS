@@ -204,7 +204,7 @@ const Cell = ({ col, row, statusColors }) => {
 export const DynamicDataPage = ({
   title,
   subtitle,
-  data,
+  data = [],
   idKey = "_id",
   columns,
   statusColors = DEFAULT_STATUS_COLORS,
@@ -226,7 +226,7 @@ export const DynamicDataPage = ({
   const searchableCols = columns.filter((c) => c.searchable !== false);
   // ── Filter + sort ──
   const processedData = useMemo(() => {
-    let result = [...data];
+    let result = Array.isArray(data) ? [...data] : [];
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter((row) =>
@@ -359,7 +359,7 @@ export const DynamicDataPage = ({
           )}
           {
             <span className="text-xs text-gray-400 whitespace-nowrap">
-              {processedData.length} of {data.length}
+              {processedData.length} of {Array.isArray(data) ? data.length : 0}
             </span>
           }
         </div>
@@ -426,6 +426,7 @@ export const DynamicDataPage = ({
                           }
                         </tr>
                       ) : (
+                        // eslint-disable-next-line no-unused-vars
                         processedData.map((row, rowIdx) => (
                           <tr className="hover:bg-blue-50/30 transition-colors">
                             {columns.map((col) => (
@@ -481,7 +482,7 @@ export const DynamicDataPage = ({
                   {search && ` matching "${search}"`}
                 </span>
               }
-              {<span>Total: {data.length}</span>}
+              {<span>Total: {Array.isArray(data) ? data.length : 0}</span>}
             </div>
           )}
         </div>

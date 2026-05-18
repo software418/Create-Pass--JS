@@ -161,3 +161,84 @@ export const deleteCarryWith = (id) => {
     { invalidateTags: ["carryWith", `carryWith/${id}`] },
   ).then(unwrapData);
 };
+
+//----------------------Department CRUD Calling---------------------------------------
+export const getDepartment = () => {
+  return queryGet(
+    API_ENDPOINTS.DEPARTMENT,
+    {},
+    { cache: true, tags: ["department"] },
+  ).then((res) => unwrapData(res).department || unwrapData(res));
+};
+export const createDepartment = (payload) => {
+  return queryPost(
+    API_ENDPOINTS.DEPARTMENT,
+    payload,
+    {},
+    { invalidateTags: ["department"] },
+  ).then(unwrapData);
+};
+export const updateDepartment = (id, payload) => {
+  return queryPut(
+    `${API_ENDPOINTS.DEPARTMENT}/${id}`,
+    payload,
+    {},
+    { invalidateTags: ["department", `department/${id}`] },
+  ).then(unwrapData);
+};
+export const deleteDepartment = (id) => {
+  return queryDelete(
+    `${API_ENDPOINTS.DEPARTMENT}/${id}`,
+    {},
+    { invalidateTags: ["department", `department/${id}`] },
+  ).then(unwrapData);
+};
+//----------------------Location CRUD Calling---------------------------------------
+export const getLocation = () => {
+  return queryGet(
+    API_ENDPOINTS.LOCATION,
+    {},
+    { cache: true, tags: ["location"] },
+  ).then((res) => unwrapData(res).location || unwrapData(res));
+};
+export const createLocation = (payload) => {
+  return queryPost(
+    API_ENDPOINTS.LOCATION,
+    payload,
+    {},
+    { invalidateTags: ["location"] },
+  ).then(unwrapData);
+};
+export const updateLocation = (id, payload) => {
+  return queryPut(
+    `${API_ENDPOINTS.LOCATION}/${id}`,
+    payload,
+    {},
+    { invalidateTags: ["location", `location/${id}`] },
+  ).then(unwrapData);
+};
+export const deleteLocation = (id) => {
+  return queryDelete(
+    `${API_ENDPOINTS.LOCATION}/${id}`,
+    {},
+    { invalidateTags: ["location", `location/${id}`] },
+  ).then(unwrapData);
+};
+
+
+
+
+//----------------------Company Register (singleton, update only)-------------------
+export const getCompanyRegister = () => {
+  return queryGet(
+    API_ENDPOINTS.COMPANY_REGISTER,
+    {},
+    { cache: true, tags: ["companyRegister"] },
+  ).then((res) => unwrapData(res).companyRegister ?? null);
+};
+
+export const updateCompanyRegister = (formData) => {
+  return queryPut(API_ENDPOINTS.COMPANY_REGISTER, formData, {}, {
+    invalidateTags: ["companyRegister"],
+  }).then((res) => unwrapData(res).companyRegister ?? unwrapData(res));
+};

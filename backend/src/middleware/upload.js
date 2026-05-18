@@ -25,9 +25,24 @@ const storage = multer_1.diskStorage({
     cb(null, `${file.fieldname}-${uniqueSuffix}${path_1.extname(file.originalname)}`);
   }
 });
+const imageFileFilter = (req, file, cb) => {
+  if (!file.mimetype.startsWith("image/")) {
+    return cb(new Error("Only image files are allowed for logo upload"));
+  }
+  cb(null, true);
+};
+
 export const upload = (0, multer_1)({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024
-  } // 5MB limit
+    fileSize: 5 * 1024 * 1024,
+  },
+});
+
+export const uploadLogo = (0, multer_1)({
+  storage: storage,
+  fileFilter: imageFileFilter,
+  limits: {
+    fileSize: 2 * 1024 * 1024,
+  },
 });

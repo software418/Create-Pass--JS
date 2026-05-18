@@ -11,6 +11,10 @@ import {
   DoorOpen,
   Presentation,
   Settings,
+  Building,
+  Network,
+  Map,
+  IdCard,
 } from "lucide-react";
 import { Button } from "../ui/atoms/Button";
 import { Avatar } from "../ui/atoms/Avatar";
@@ -50,17 +54,29 @@ export const DashboardLayout = () => {
 
               {/* Settings group — expands on click */}
               <SidebarGroup icon={Settings} label="Settings">
+                <Link to="/company-register-config">
+                  <SidebarItem icon={Building } label="Company Register" />
+                </Link>
+                 <Link to="/department-config">
+                  <SidebarItem icon={Network  } label="Department" />
+                </Link>
                 <Link to="/employee-config">
                   <SidebarItem icon={UserRoundCog} label="Employee" />
                 </Link>
                 <Link to="/visiting-area-config">
                   <SidebarItem icon={Factory} label="Visiting Area" />
                 </Link>
+                 <Link to="/location-config">
+                  <SidebarItem icon={Map} label="Location" />
+                </Link>
                 <Link to="/visitor-type-config">
                   <SidebarItem icon={Users} label="Visitor Type" />
                 </Link>
                 <Link to="/purpose-config">
                   <SidebarItem icon={DoorOpen} label="Purpose" />
+                </Link>
+                <Link to="/id-type-config">
+                  <SidebarItem icon={IdCard } label="Id Type" />
                 </Link>
                 <Link to="/carry-with-config">
                   <SidebarItem icon={Package} label="Carry With" />

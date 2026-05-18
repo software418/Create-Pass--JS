@@ -39,6 +39,30 @@ model Purpose {
   description String
   status      String   @default("active")
 }
+model Department {
+  id          String   @id @default(uuid())
+  name        String
+  status      String   @default("active")
+}
+model Location {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("active")
+}
+
+model CompanyRegister {
+  id               String   @id @default("default")
+  companyFullName  String   @default("")
+  companyShortName String   @default("")
+  companyContactNo String   @default("")
+  logoUrl          String   @default("")
+  hostName         String   @default("")
+  portNo           Int      @default(0)
+  userEmailId      String   @default("")
+  emailPassword    String   @default("")
+  updatedAt        DateTime @updatedAt
+}
 
 model Employee {
   id          String   @id @default(uuid())
@@ -86,7 +110,7 @@ model FormData {
   photoUrl                String         @default("")
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
-
+  status                  String?
   persons                 PersonDetail[]
 }
 

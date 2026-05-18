@@ -7,6 +7,10 @@ import { CarryWithPage } from "@/pages/CarryWithPage";
 import { PurposePage } from "@/pages/PurposePage";
 import { VisitorAreaPage } from "@/pages/VisitingAreaPage";
 import { VisitorTypePage } from "@/pages/VisitorTypePage";
+import { DepartmentPage } from "../pages/DepartmentPage";
+import { CompanyRegisterPage } from "../pages/CompanyRegisterPage";
+import { LocationPage } from "../pages/LocationPage";
+import DashbordPage from "../pages/DashbordPage";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -21,12 +25,17 @@ export const AppRoutes = () => {
               }
             />
           }
+          {<Route path="/dashboard" element={<DashbordPage />} />}
           {<Route path="/create-pass" element={<CreatePassPage />} />}
           {<Route path="/employee-config" element={<EmployeePage />} />}
           {<Route path="/visiting-area-config" element={<VisitorAreaPage />} />}
           {<Route path="/visitor-type-config" element={<VisitorTypePage />} />}
           {<Route path="/purpose-config" element={<PurposePage />} />}
           {<Route path="/carry-with-config" element={<CarryWithPage />} />}
+          {<Route path="/department-config" element={<DepartmentPage />} />}
+          {<Route path="/company-register-config" element={<CompanyRegisterPage />} />}
+          {<Route path="/location-config" element={<LocationPage />} />}
+
         </Route>
       }
     </Routes>
