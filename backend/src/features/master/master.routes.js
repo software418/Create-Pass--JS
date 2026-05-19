@@ -48,10 +48,17 @@ router.delete("/department/:id", master_controller_1.deleteDepartment);
 // ─────────────────────────────────────────────────────────────
 // Location  Routes  →  /api/master/location
 // ─────────────────────────────────────────────────────────────
-router.get("/location", master_controller_1.getDepartment);
-router.post("/location", master_controller_1.createDepartment);
-router.put("/location/:id", master_controller_1.updateDepartment);
-router.delete("/location/:id", master_controller_1.deleteDepartment);
+router.get("/location", master_controller_1.getLocation);
+router.post("/location", master_controller_1.createLocation);
+router.put("/location/:id", master_controller_1.updateLocation);
+router.delete("/location/:id", master_controller_1.deleteLocation);
+// ─────────────────────────────────────────────────────────────
+// ID Type  Routes  →  /api/master/id-type
+// ─────────────────────────────────────────────────────────────
+router.get("/id-type", master_controller_1.getIdType);
+router.post("/id-type", master_controller_1.createIdType);
+router.put("/id-type/:id", master_controller_1.updateIdType);
+router.delete("/id-type/:id", master_controller_1.deleteIdType);
 
 // ─────────────────────────────────────────────────────────────
 // Company Register  →  /api/v1/master/company-register (get + update only)

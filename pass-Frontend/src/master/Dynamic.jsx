@@ -58,7 +58,7 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
           {
             <form onSubmit={handleSubmit} className="dynamic-modal-form">
               {fields.map((field) => (
-                <div>
+                <div key={field.key}>
                   {
                     <label className="dynamic-label">
                       {field.label}
@@ -79,9 +79,9 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                       required={field.required}
                       className="dynamic-input"
                     >
-                      {<option value="">Select {field.label}...</option>}
-                      {field.options.map((opt) => (
-                        <option value={opt}>{opt}</option>
+                      <option value="">Select {field.label}...</option>
+                      {field.options.map((opt, optIdx) => (
+                        <option key={opt || optIdx} value={opt}>{opt}</option>
                       ))}
                     </select>
                   ) : (
@@ -376,6 +376,7 @@ export const DynamicDataPage = ({
                         <tr>
                           {columns.map((col) => (
                             <th
+                              key={col.key}
                               style={
                                 col.width ? { width: col.width } : undefined
                               }
@@ -428,9 +429,9 @@ export const DynamicDataPage = ({
                       ) : (
                         // eslint-disable-next-line no-unused-vars
                         processedData.map((row, rowIdx) => (
-                          <tr className="hover:bg-blue-50/30 transition-colors">
+                          <tr key={row[idKey] ?? rowIdx} className="hover:bg-blue-50/30 transition-colors">
                             {columns.map((col) => (
-                              <td className="px-5 py-3.5 whitespace-nowrap">
+                              <td key={col.key} className="px-5 py-3.5 whitespace-nowrap">
                                 {
                                   <Cell
                                     col={col}

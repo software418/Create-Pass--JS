@@ -45,4 +45,89 @@ const handleFormSubmission = async (req, res) => {
     });
   }
 };
-export { handleFormSubmission };
+
+const getPasses = async (req, res) => {
+  try {
+    const { startDate, endDate, status, ...otherFilters } = req.query || {};
+    
+    let filters = { ...otherFilters };
+
+    if (status && status !== 'All') {
+      filters.status = status;
+    }
+
+    if (startDate || endDate) {
+      filters.createdAt = {};
+      if (startDate) {
+        filters.createdAt.gte = new Date(`${startDate}T00:00:00.000Z`);
+      }
+      if (endDate) {
+        filters.createdAt.lte = new Date(`${endDate}T23:59:59.999Z`);
+      }
+    }
+
+    const passes = await gp_service_1.getPassesService(filters);
+    logger_utils_1.info(`Successfully fetched ${passes.length} passes`);
+    return res.status(200).json({
+      status: "success",
+      data: passes
+    });
+  } catch (error) {
+    logger_utils_1.error(`Failed to get passes: ${error.message}`);
+    return res.status(500).json({
+      status: "error",
+      message: error.message || "Internal Server Error"
+    });
+  }
+};
+
+const updatePassStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, ...updateData } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({
+        status: "error",
+        message: "Status is required."
+      });
+    }
+
+    const pass = await gp_service_1.updatePassStatusService(id, status, updateData);
+    return res.status(200).json({
+      status: "success",
+      data: pass
+    });
+  } catch (error) {
+    logger_utils_1.error(`Failed to update pass status: ${error.message}`);
+    return res.status(500).json({
+      status: "error",
+      message: error.message || "Internal Server Error"
+    });
+  }
+};
+
+const getPassById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pass = await gp_service_1.getPassByIdService(id);
+    if (!pass) {
+      return res.status(404).json({
+        status: "error",
+        message: "Pass not found"
+      });
+    }
+    return res.status(200).json({
+      status: "success",
+      data: pass
+    });
+  } catch (error) {
+    logger_utils_1.error(`Failed to get pass: ${error.message}`);
+    return res.status(500).json({
+      status: "error",
+      message: error.message || "Internal Server Error"
+    });
+  }
+};
+
+export { handleFormSubmission, getPasses, updatePassStatus, getPassById };

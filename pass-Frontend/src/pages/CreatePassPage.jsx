@@ -7,7 +7,7 @@ import { FormField } from "@/shared/ui/molecules/FormField";
 import { Input } from "@/shared/ui/atoms/Input";
 import { queryPost } from "@/shared/services/api";
 import { API_ENDPOINTS } from "@/shared/const/api";
-import { useLocation } from "@/shared/hooks/useLocation";
+import { useLocationUtils } from "@/shared/hooks/useLocation";
 import {
   Card,
   CardHeader,
@@ -20,6 +20,8 @@ import { usePurpose } from "@/features/purpose/usePurpose";
 import { useCarryWith } from "@/features/carry_with/useCarrywith";
 import { useVisitorArea } from "@/features/visitor_area/useVisitorArea";
 import { useVisitorType } from "@/features/visitor_type/useVisitorType";
+import { useLocation } from "@/features/location/useLocation";
+import { useIdType } from "@/features/id_type/useIdType";
 const INITIAL_FORM_DATA = {
   gatePassType: "single",
   passDate: "",
@@ -49,12 +51,14 @@ const INITIAL_FORM_DATA = {
 const CreatePassPage = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { states, cities, setSelectedState } = useLocation();
+  const { states, cities, setSelectedState } = useLocationUtils();
   const { employees } = useEmployees();
   const { carryWith } = useCarryWith();
   const { purposes } = usePurpose();
   const { visitorArea } = useVisitorArea();
   const { visitorType } = useVisitorType();
+  const { location } = useLocation();
+  const { idType } = useIdType();
   const cameraInputRef = React.useRef(null);
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleInputChange = (e) => {
@@ -164,89 +168,12 @@ const CreatePassPage = () => {
       console.error("Submission error:", error);
       alert(
         error?.response?.data?.message ||
-          "Submission failed. Please try again.",
+        "Submission failed. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
     }
   };
-  // const handleSubmit = async (e: React.FormEvent) =>
-  // {
-  //   e.preventDefault();
-  //   setIsSubmitting(true);
-  //   try {
-  //     // 1. Capture photo
-  //     const photoBlob = await cameraInputRef.current?.takePhoto();
-  //     if (!photoBlob) {
-  //       alert("Please take a photo before submitting!");
-  //       setIsSubmitting(false);
-  //       return;
-  //     }
-  //     // 2. Build FormData
-  //     const payload = new FormData();
-  //     // ── Scalar fields ──────────────────────────────────────────────────────
-  //     const scalarFields: Array<keyof Omit<FormData, "persons">> = [
-  //       "gatePassType",
-  //       "passDate",
-  //       "from",
-  //       "to",
-  //       "mobileNo",
-  //       "name",
-  //       "emailId",
-  //       "companyName",
-  //       "address",
-  //       "state",
-  //       "city",
-  //       "representingVisitorType",
-  //       "subLocation",
-  //       "toMeetWith",
-  //       "carryWith",
-  //       "idType",
-  //       "idNumber",
-  //       "description",
-  //       "maskCovid",
-  //       "noOfPerson",
-  //       "visitArea",
-  //       "purpose",
-  //       "allowedHours",
-  //     ];
-  //     scalarFields.forEach((key) => {
-  //       payload.append(key, formData[key] as string);
-  //     });
-  //     // ── Persons: send metadata as JSON + each file separately ──────────────
-  //     const personsMetadata = formData.persons.map(
-  //       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //       ({ aadharFile: _, ...rest }) => rest,
-  //     );
-  //     payload.append("persons", JSON.stringify(personsMetadata));
-  //     // Append each person's aadhar file with a predictable key
-  //     formData.persons.forEach((person, index) => {
-  //       if (person.aadharFile) {
-  //         payload.append(
-  //           `aadharFile_${index}`,
-  //           person.aadharFile,
-  //           person.aadharFile.name,
-  //         );
-  //       }
-  //     });
-  //     // ── Camera photo ───────────────────────────────────────────────────────
-  //     payload.append("photo", photoBlob, "visitor-photo.jpg");
-  //     // 3. POST
-  //     const response = await queryPost(API_ENDPOINTS.UPLOAD, payload);
-  //     console.log("API Response:", response.data);
-  //     alert("Gate pass created successfully!");
-  //     handleClear();
-  //   } catch (error: any) {
-  //     console.error("Submission error:", error);
-  //     alert(
-  //       error?.response?.data?.message ||
-  //         "Submission failed. Please try again.",
-  //     );
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="page-container">
       {
@@ -266,7 +193,7 @@ const CreatePassPage = () => {
                           {
                             <div className="form-radio-group">
                               {["single", "multi"].map((type) => (
-                                <label className="form-radio-label">
+                                <label key={type} className="form-radio-label">
                                   {
                                     <input
                                       type="radio"
@@ -441,9 +368,9 @@ const CreatePassPage = () => {
                                   onChange={handleStateChange}
                                   className="form-select"
                                 >
-                                  {<option value="">Select State</option>}
-                                  {states.map((s) => (
-                                    <option value={s.isoCode}>{s.name}</option>
+                                  <option value="">Select State</option>
+                                  {states.map((s, index) => (
+                                    <option key={s.isoCode || index} value={s.isoCode}>{s.name}</option>
                                   ))}
                                 </select>
                               }
@@ -460,9 +387,9 @@ const CreatePassPage = () => {
                                   onChange={handleInputChange}
                                   className="form-select-disabled"
                                 >
-                                  {<option value="">Select City</option>}
-                                  {cities.map((c) => (
-                                    <option value={c.name}>{c.name}</option>
+                                  <option value="">Select City</option>
+                                  {cities.map((c, index) => (
+                                    <option key={c.name || index} value={c.name}>{c.name}</option>
                                   ))}
                                 </select>
                               }
@@ -487,9 +414,9 @@ const CreatePassPage = () => {
                               onChange={handleInputChange}
                               className="form-select"
                             >
-                              {<option value="">Select Visitor Type</option>}
-                              {visitorType.map((v) => (
-                                <option value={v.name}>{v.name}</option>
+                              <option value="">Select Visitor Type</option>
+                              {visitorType.map((v, index) => (
+                                <option key={v._id || v.name || index} value={v.name}>{v.name}</option>
                               ))}
                             </select>
                           }
@@ -505,10 +432,10 @@ const CreatePassPage = () => {
                               onChange={handleInputChange}
                               className="form-select"
                             >
-                              {<option value="">Select</option>}
-                              {<option value="MAIN">MAIN</option>}
-                              {<option value="BRANCH">BRANCH</option>}
-                              {<option value="OFFICE">OFFICE</option>}
+                              <option value="">Select Location</option>
+                              {location.map((v, index) => (
+                                <option key={v._id || v.name || index} value={v.name}>{v.name}</option>
+                              ))}
                             </select>
                           }
                         </FormField>
@@ -530,9 +457,9 @@ const CreatePassPage = () => {
                               onChange={handleInputChange}
                               className="form-select"
                             >
-                              {<option value="">Select</option>}
-                              {employees.map((e) => (
-                                <option value={e._id}>{e.name}</option>
+                              <option value="">Select</option>
+                              {employees.map((e, index) => (
+                                <option key={e._id || index} value={e._id}>{e.name}</option>
                               ))}
                             </select>
                           }
@@ -543,10 +470,10 @@ const CreatePassPage = () => {
                           {
                             <div className="form-radio-group-compact">
                               {carryWith.map((c) => (
-                                <label className="form-radio-label">
+                                <label key={c._id || c.name} className="form-radio-label">
                                   {
                                     <Checkbox
-                                      id={`carryWith-${c._id}`}
+                                      id={`carryWith`}
                                       value={c.value}
                                       checked={formData.carryWith.includes(
                                         c.name,
@@ -557,8 +484,8 @@ const CreatePassPage = () => {
                                           carryWith: e.target.checked
                                             ? [...prev.carryWith, c.name]
                                             : prev.carryWith.filter(
-                                                (item) => item !== c.name,
-                                              ),
+                                              (item) => item !== c.name,
+                                            ),
                                         }))
                                       }
                                     />
@@ -588,10 +515,10 @@ const CreatePassPage = () => {
                               onChange={handleInputChange}
                               className="form-select"
                             >
-                              {<option value="PASSPORT">PASSPORT</option>}
-                              {<option value="AADHAR">AADHAR</option>}
-                              {<option value="PAN">PAN</option>}
-                              {<option value="DL">DRIVING LICENSE</option>}
+                              <option value="">Select ID Type</option>
+                              {idType.map((v, index) => (
+                                <option key={v._id || v.name || index} value={v.name}>{v.name}</option>
+                              ))}
                             </select>
                           }
                         </FormField>
@@ -639,11 +566,11 @@ const CreatePassPage = () => {
                               {
                                 <div className="form-radio-group-compact">
                                   {["yes", "no"].map((val) => (
-                                    <label className="form-radio-label">
+                                    <label key={val} className="form-radio-label">
                                       {
                                         <input
                                           type="radio"
-                                          id={`maskCovid-${val}`}
+                                          id={`maskCovid`}
                                           name="maskCovid"
                                           value={val}
                                           checked={formData.maskCovid === val}
@@ -692,7 +619,7 @@ const CreatePassPage = () => {
                         </h3>
                       }
                       {formData.persons.map((person, index) => (
-                        <div className="person-card">
+                        <div key={index} className="person-card">
                           {
                             <div className="form-grid-4">
                               {
@@ -835,7 +762,7 @@ const CreatePassPage = () => {
                       {
                         <div className="grid grid-cols-3 gap-4">
                           {visitorArea.map((v) => (
-                            <label className="form-radio-label">
+                            <label key={v._id || v.name} className="form-radio-label">
                               {
                                 <Checkbox
                                   checked={formData.visitArea.includes(v.name)}
@@ -845,8 +772,8 @@ const CreatePassPage = () => {
                                       visitArea: e.target.checked
                                         ? [...prev.visitArea, v.name]
                                         : prev.visitArea.filter(
-                                            (item) => item !== v.name,
-                                          ),
+                                          (item) => item !== v.name,
+                                        ),
                                     }))
                                   }
                                   value={v.name}
@@ -871,9 +798,9 @@ const CreatePassPage = () => {
                               onChange={handleInputChange}
                               className="form-select"
                             >
-                              {<option value="">Select</option>}
-                              {purposes.map((e) => (
-                                <option value={e._id}>{e.name}</option>
+                              <option value="">Select</option>
+                              {purposes.map((e, index) => (
+                                <option key={e._id || index} value={e._id}>{e.name}</option>
                               ))}
                             </select>
                           }
@@ -905,7 +832,7 @@ const CreatePassPage = () => {
                           ref={cameraInputRef}
                           width="400px"
                           height="300px"
-                          onCapture={() => {}}
+                          onCapture={() => { }}
                         />
                       }
                     </div>

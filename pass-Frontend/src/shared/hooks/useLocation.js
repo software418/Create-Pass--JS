@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { LocationService } from "../utils/location.utill";
-export const useLocation = () => {
+export const useLocationUtils = () => {
   const [states] = useState(LocationService.getIndiaStates());
   const [cities, setCities] = useState([]);
   const [selectedState, setSelectedState] = useState("");

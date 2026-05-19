@@ -50,6 +50,12 @@ model Location {
   description String
   status      String   @default("active")
 }
+model IdType {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  status      String   @default("active")
+}
 
 model CompanyRegister {
   id               String   @id @default("default")

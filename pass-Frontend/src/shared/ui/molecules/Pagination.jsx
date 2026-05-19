@@ -43,13 +43,13 @@ export const Pagination = ({
       {paginationRange.map((pageNumber, idx) => {
         if (pageNumber === DOTS) {
           return (
-            <li className="pagination-dots">
+            <li key={`dots-${idx}`} className="pagination-dots">
               {<MoreHorizontal className="h-4 w-4" />}
             </li>
           );
         }
         return (
-          <li>
+          <li key={pageNumber}>
             {
               <Button
                 variant={pageNumber === currentPage ? "primary" : "ghost"}

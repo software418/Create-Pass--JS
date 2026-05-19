@@ -113,4 +113,58 @@ const processForm = async (data, file, aadharFiles) => {
     throw new Error(err.message);
   }
 };
-export { processForm };
+
+const getPassesService = async (filters = {}) => {
+  try {
+    const passes = await prisma.formData.findMany({
+      where: filters,
+      include: {
+        persons: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    return passes;
+  } catch (err) {
+    logger_utils_1.error(`getPassesService error: ${err.message}`);
+    throw new Error(err.message);
+  }
+};
+
+const updatePassStatusService = async (id, status, updateData = {}) => {
+  try {
+    const pass = await prisma.formData.update({
+      where: { id },
+      data: {
+        status,
+        ...updateData
+      },
+      include: {
+        persons: true
+      }
+    });
+    logger_utils_1.info(`Gate pass ${id} status updated to ${status}`);
+    return pass;
+  } catch (err) {
+    logger_utils_1.error(`updatePassStatusService error: ${err.message}`);
+    throw new Error(err.message);
+  }
+};
+
+const getPassByIdService = async (id) => {
+  try {
+    const pass = await prisma.formData.findUnique({
+      where: { id },
+      include: {
+        persons: true
+      }
+    });
+    return pass;
+  } catch (err) {
+    logger_utils_1.error(`getPassByIdService error: ${err.message}`);
+    throw new Error(err.message);
+  }
+};
+
+export { processForm, getPassesService, updatePassStatusService, getPassByIdService };

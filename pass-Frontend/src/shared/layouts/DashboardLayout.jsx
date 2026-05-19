@@ -53,7 +53,7 @@ export const DashboardLayout = () => {
               </Link>
 
               {/* Settings group — expands on click */}
-              <SidebarGroup icon={Settings} label="Settings">
+              <SidebarGroup icon={Settings} label="Master Settings">
                 <Link to="/company-register-config">
                   <SidebarItem icon={Building } label="Company Register" />
                 </Link>
@@ -82,8 +82,12 @@ export const DashboardLayout = () => {
                   <SidebarItem icon={Package} label="Carry With" />
                 </Link>
               </SidebarGroup>
+              <Link to="/report">
+                <SidebarItem icon={FilePlus} label="Report" />
+              </Link>
             </Sidebar>
           }
+          
           {<main className="dashboard-main">{<Outlet />}</main>}
         </div>
       }

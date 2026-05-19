@@ -120,6 +120,23 @@ const getLocation = async (req, res, next) => {
 };
 export { getLocation }; 
 
+const getIdType = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} getIdType → request received");
+    const idType = await (0, master_service_1.getIdTypeService)();
+    res.status(200).json({
+      success: true,
+      message: "ID type fetched successfully",
+      data: {
+        idType
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { getIdType }; 
+
 // ─────────────────────────────────────────────────────────────
 // CREATE Controllers
 // ─────────────────────────────────────────────────────────────
@@ -235,6 +252,22 @@ const createLocation = async (req, res, next) => {
   }
 };
 export { createLocation };
+const createIdType = async (req, res, next) => {
+  try {
+    logger_utils_1.info("[CONTROLLER]{master/master.controller} createIdType → request received");
+    const idType = await (0, master_service_1.createIdTypeService)(req.body);
+    res.status(201).json({
+      success: true,
+      message: "ID type created successfully",
+      data: {
+        idType
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { createIdType }; 
 
 // ─────────────────────────────────────────────────────────────
 // UPDATE Controllers
@@ -358,6 +391,23 @@ const updateLocation = async (req, res, next) => {
   }
 };
 export { updateLocation }; 
+const updateIdType = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} updateIdType → request received for ID: ${id}`);
+    const idType = await (0, master_service_1.updateIdTypeService)(id, req.body);
+    res.status(200).json({
+      success: true,
+      message: "ID type updated successfully",
+      data: {
+        idType
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { updateIdType };
 
 // ─────────────────────────────────────────────────────────────
 // DELETE Controllers
@@ -481,8 +531,23 @@ const deleteLocation = async (req, res, next) => {
   }
 };
 export { deleteLocation };
-
-
+const deleteIdType = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    logger_utils_1.info(`[CONTROLLER]{master/master.controller} deleteIdType → request received for ID: ${id}`);
+    const idType = await (0, master_service_1.deleteIdTypeService)(id);
+    res.status(200).json({
+      success: true,
+      message: "ID type deleted successfully",
+      data: {
+        idType
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+export { deleteIdType }; 
 
 
 const getCompanyRegister = async (req, res, next) => {

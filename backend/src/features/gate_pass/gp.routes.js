@@ -1,11 +1,15 @@
 // import { Router } from 'express';
 // import multer from 'multer';
 // import { handleFormSubmission } from '../capture/formcontroller';
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    default: mod
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule
+      ? mod
+      : {
+          default: mod,
+        };
   };
-};
 
 // const router = Router();
 // // Configure Multer for Memory Storage (provides file.buffer)
@@ -24,8 +28,8 @@ const router = (0, express_1.Router)();
 const upload = (0, multer_1)({
   storage: multer_1.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024
-  } // 10 MB per file
+    fileSize: 10 * 1024 * 1024,
+  }, // 10 MB per file
 });
 /**
  * Accept:
@@ -35,13 +39,29 @@ const upload = (0, multer_1)({
  * Using upload.fields() so multer collects all files into req.files (an object),
  * while req.body still carries every text/JSON field.
  */
-router.post("/upload", upload.fields([{
-  name: "photo",
-  maxCount: 1
-}, ...Array.from({
-  length: 20
-}, (_, i) => ({
-  name: `aadharFile_${i}`,
-  maxCount: 1
-}))]), gp_controller_1.handleFormSubmission);
+router.post(
+  "/upload",
+  upload.fields([
+    {
+      name: "photo",
+      maxCount: 1,
+    },
+    ...Array.from(
+      {
+        length: 20,
+      },
+      (_, i) => ({
+        name: `aadharFile_${i}`,
+        maxCount: 1,
+      }),
+    ),
+  ]),
+  gp_controller_1.handleFormSubmission,
+);
+
+
+router.get("/", gp_controller_1.getPasses);
+router.get("/:id", gp_controller_1.getPassById);
+router.patch("/:id/status", gp_controller_1.updatePassStatus);
+
 export default router;

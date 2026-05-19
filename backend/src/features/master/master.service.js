@@ -3,7 +3,6 @@ var __importDefault = this && this.__importDefault || function (mod) {
     "default": mod
   };
 };
-import logger_utils_1 from "../../utils/logger.utils.js";
 import appError_1 from "../../utils/appError.js";
 import { prisma } from "../../config/db.js"; // GET Services
 const getPurposeService = async () => {
@@ -62,6 +61,14 @@ const getLocationService = async () => {
   });
 };
 export { getLocationService }; 
+const getIdTypeService = async () => {
+  return await prisma.IdType.findMany({
+    where: {
+      status: "active"
+    }
+  });
+};
+export { getIdTypeService }; 
 
 
 // CREATE Services
@@ -128,6 +135,16 @@ const createLocationService = async data => {
   });
 };
 export { createLocationService };
+
+const createIdTypeService = async data => {
+  return await prisma.IdType.create({
+    data: {
+      ...data,
+      status: "active"
+    }
+  });
+};
+export { createIdTypeService };
 
 
 // UPDATE Services
@@ -236,6 +253,21 @@ const updateLocationService = async (locationId, data) => {
   });
 };
 export { updateLocationService };
+const updateIdTypeService = async (idTypeId, data) => {
+  const exist = await prisma.IdType.findUnique({
+    where: {
+      id: idTypeId
+    }
+  });
+  if (!exist) throw new appError_1("ID type not found", 404, "NOT_FOUND");
+  return await prisma.IdType.update({
+    where: {
+      id: idTypeId
+    },
+    data
+  });
+};
+export { updateIdTypeService };
 
 
 // DELETE Services
@@ -344,7 +376,21 @@ const deleteLocationService = async locationId => {
   });
 };
 export { deleteLocationService };
-
+const deleteIdTypeService = async idTypeId => {
+  const exist = await prisma.IdType.findUnique({
+    where: {
+      id: idTypeId
+    }
+  });
+  if (!exist) throw new appError_1("ID type not found", 404, "NOT_FOUND");
+  if (exist.status === "deleted") throw new appError_1("ID type is already deleted", 409, "CONFLICT");
+  return await prisma.IdType.delete({
+    where: {
+      id: idTypeId
+    }
+  });
+};
+export { deleteIdTypeService }; 
 
 
 

@@ -7,5 +7,6 @@ export const API_ENDPOINTS = {
   CARRY_WITH: "/master/carry-with",
   DEPARTMENT: "/master/department",
   LOCATION: "/master/location",
+  ID_TYPE: "/master/id-type",
   COMPANY_REGISTER: "/master/company-register",
 };

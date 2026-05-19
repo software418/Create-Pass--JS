@@ -10,7 +10,9 @@ import { VisitorTypePage } from "@/pages/VisitorTypePage";
 import { DepartmentPage } from "../pages/DepartmentPage";
 import { CompanyRegisterPage } from "../pages/CompanyRegisterPage";
 import { LocationPage } from "../pages/LocationPage";
+import { IdTypePage } from "../pages/IdTypePage";
 import DashbordPage from "../pages/DashbordPage";
+import ReportPage from "../pages/ReportPage";
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -35,7 +37,8 @@ export const AppRoutes = () => {
           {<Route path="/department-config" element={<DepartmentPage />} />}
           {<Route path="/company-register-config" element={<CompanyRegisterPage />} />}
           {<Route path="/location-config" element={<LocationPage />} />}
-
+          {<Route path="/id-type-config" element={<IdTypePage />} />}
+          {<Route path="/report" element={<ReportPage />} />}
         </Route>
       }
     </Routes>

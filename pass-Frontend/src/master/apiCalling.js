@@ -225,7 +225,37 @@ export const deleteLocation = (id) => {
   ).then(unwrapData);
 };
 
-
+//----------------------ID Type CRUD Calling---------------------------------------
+export const getIdType = () => {
+  return queryGet(
+    API_ENDPOINTS.ID_TYPE,
+    {},
+    { cache: true, tags: ["idType"] },
+  ).then((res) => unwrapData(res).idType || unwrapData(res));
+};
+export const createIdType = (payload) => {
+  return queryPost(
+    API_ENDPOINTS.ID_TYPE,
+    payload,
+    {},
+    { invalidateTags: ["idType"] },
+  ).then(unwrapData);
+};
+export const updateIdType = (id, payload) => {
+  return queryPut(
+    `${API_ENDPOINTS.ID_TYPE}/${id}`,
+    payload,
+    {},
+    { invalidateTags: ["idType", `idType/${id}`] },
+  ).then(unwrapData);
+};
+export const deleteIdType = (id) => {
+  return queryDelete(
+    `${API_ENDPOINTS.ID_TYPE}/${id}`,
+    {},
+    { invalidateTags: ["idType", `idType/${id}`] },
+  ).then(unwrapData);
+};
 
 
 //----------------------Company Register (singleton, update only)-------------------
