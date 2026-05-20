@@ -60,6 +60,8 @@ router.post(
 );
 
 
+router.get("/dashboard/data", gp_controller_1.getDashboardData);
+router.get("/dashboard/stream", gp_controller_1.getDashboardStream);
 router.get("/", gp_controller_1.getPasses);
 router.get("/:id", gp_controller_1.getPassById);
 router.patch("/:id/status", gp_controller_1.updatePassStatus);

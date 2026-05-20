@@ -90,6 +90,7 @@ model CarryWith {
 
 model FormData {
   id                      String         @id @default(uuid())
+  gatePassId              String?        @unique
   gatePassType            String
   passDate                DateTime
   from                    DateTime?
@@ -117,6 +118,15 @@ model FormData {
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   status                  String?
+  approvedBy              String?
+  approvedAt              DateTime?
+  rejectedBy              String?
+  rejectedAt              DateTime?
+  rejectionReason         String?
+  checkedInBy             String?
+  checkedInAt             DateTime?
+  checkedOutBy            String?
+  checkedOutAt            DateTime?
   persons                 PersonDetail[]
 }
 

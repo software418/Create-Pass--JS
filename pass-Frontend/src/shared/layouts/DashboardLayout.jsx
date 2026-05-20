@@ -1,6 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
 import { Navbar } from "../ui/organisms/Navbar";
 import { Sidebar, SidebarItem, SidebarGroup } from "../ui/organisms/Sidebar";
+import { Footer } from "../ui/organisms/Footer";
 import {
   Package,
   LogOut,
@@ -15,6 +16,8 @@ import {
   Network,
   Map,
   IdCard,
+  FileText,
+  Calendar,
 } from "lucide-react";
 import { Button } from "../ui/atoms/Button";
 import { Avatar } from "../ui/atoms/Avatar";
@@ -82,13 +85,24 @@ export const DashboardLayout = () => {
                   <SidebarItem icon={Package} label="Carry With" />
                 </Link>
               </SidebarGroup>
-              <Link to="/report">
-                <SidebarItem icon={FilePlus} label="Report" />
-              </Link>
+
+              <SidebarGroup icon={FileText} label="Reports">
+                <Link to="/report/generate">
+                  <SidebarItem icon={FilePlus} label="Generate Report" />
+                </Link>
+                <Link to="/report/today">
+                  <SidebarItem icon={Calendar} label="Inside Report" />
+                </Link>
+              </SidebarGroup>
             </Sidebar>
           }
           
-          {<main className="dashboard-main">{<Outlet />}</main>}
+          <main className="dashboard-main">
+            <div className="dashboard-content">
+              <Outlet />
+            </div>
+            <Footer />
+          </main>
         </div>
       }
     </div>

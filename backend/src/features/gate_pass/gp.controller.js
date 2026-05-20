@@ -5,6 +5,17 @@ var __importDefault = this && this.__importDefault || function (mod) {
 };
 import * as gp_service_1 from "../gate_pass/gp.service.js";
 import logger_utils_1 from "../../utils/logger.utils.js";
+import { addClient, removeClient, notifyClients } from "./sse.js";
+
+const broadcastDashboardUpdate = async () => {
+  try {
+    const dashboardData = await gp_service_1.getDashboardDataService();
+    notifyClients("dashboard-update", dashboardData);
+  } catch (error) {
+    logger_utils_1.error(`Failed to broadcast dashboard update: ${error.message}`);
+  }
+};
+
 const handleFormSubmission = async (req, res) => {
   try {
     const contentType = req.headers["content-type"] || "";
@@ -36,6 +47,10 @@ const handleFormSubmission = async (req, res) => {
     logger_utils_1.debug(`Aadhar files received: ${aadharFiles.length}`);
     logger_utils_1.debug(`Body keys: ${Object.keys(req.body).join(", ")}`);
     const result = await (0, gp_service_1.processForm)(req.body, photo, aadharFiles);
+    
+    // Broadcast real-time update to dashboard
+    broadcastDashboardUpdate();
+    
     return res.status(201).json(result);
   } catch (error) {
     logger_utils_1.error(`Form submission failed: ${error.message}`);
@@ -94,6 +109,10 @@ const updatePassStatus = async (req, res) => {
     }
 
     const pass = await gp_service_1.updatePassStatusService(id, status, updateData);
+    
+    // Broadcast real-time update to dashboard
+    broadcastDashboardUpdate();
+
     return res.status(200).json({
       status: "success",
       data: pass
@@ -130,4 +149,42 @@ const getPassById = async (req, res) => {
   }
 };
 
-export { handleFormSubmission, getPasses, updatePassStatus, getPassById };
+const getDashboardData = async (req, res) => {
+  try {
+    const dashboardData = await gp_service_1.getDashboardDataService();
+    return res.status(200).json({
+      status: "success",
+      data: dashboardData
+    });
+  } catch (error) {
+    logger_utils_1.error(`Failed to get dashboard data: ${error.message}`);
+    return res.status(500).json({
+      status: "error",
+      message: error.message || "Internal Server Error"
+    });
+  }
+};
+
+const getDashboardStream = async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Ensure CORS is open for SSE
+    
+    // Immediately send current dashboard data
+    const initialData = await gp_service_1.getDashboardDataService();
+    res.write(`data: ${JSON.stringify({ event: "dashboard-update", data: initialData })}\n\n`);
+
+    addClient(res);
+
+    req.on('close', () => {
+      removeClient(res);
+    });
+  } catch (error) {
+    logger_utils_1.error(`SSE stream error: ${error.message}`);
+    res.status(500).end();
+  }
+};
+
+export { handleFormSubmission, getPasses, updatePassStatus, getPassById, getDashboardData, getDashboardStream };
