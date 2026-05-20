@@ -1,5 +1,5 @@
 import DynamicDataPage from "@/master/Dynamic";
-import { useIdType } from "../features/id_type/useIdType";
+import { useIdType } from "@/features/id_type/useIdType";
 export const IdTypePage = () => {
   const { idType, isLoading, error, onCreate, onUpdate, onDelete } =
     useIdType(); // your hook
@@ -24,13 +24,13 @@ export const IdTypePage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Id Name",
         },
         {
           key: "description",
           label: "Description",
           required: true,
-          placeholder: "Tech tool",
+          placeholder: "Goverment Id Proff",
         },
         {
           key: "status",

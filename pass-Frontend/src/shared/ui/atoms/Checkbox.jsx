@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 export const Checkbox = React.forwardRef(({ className, ...props }, ref) => {
   return (
     <input

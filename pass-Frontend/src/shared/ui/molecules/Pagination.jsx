@@ -1,6 +1,6 @@
-import { Button } from "../atoms/Button";
+import { Button } from "@/shared/ui/atoms/Button";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
-import { usePagination, DOTS } from "../../hooks/usePagination";
+import { usePagination, DOTS } from "@/shared/hooks/usePagination";
 export const Pagination = ({
   onPageChange,
   totalCount,

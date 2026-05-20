@@ -24,13 +24,13 @@ export const LocationPage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Location name",
         },
         {
           key: "description",
           label: "Description",
           required: true,
-          placeholder: "Tech tool",
+          placeholder: "Conforance room",
         },
         {
           key: "status",

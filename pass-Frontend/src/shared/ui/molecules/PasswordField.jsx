@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Input } from "../atoms/Input";
+import { Input } from "@/shared/ui/atoms/Input";
+import { cn } from "@/shared/utils/cn";
 import { Eye, EyeOff } from "lucide-react";
-import { cn } from "../../utils/cn";
 export const PasswordField = React.forwardRef(
   ({ className, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);

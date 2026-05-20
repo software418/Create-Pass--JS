@@ -25,13 +25,13 @@ export const VisitorAreaPage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Area name",
         },
         {
           key: "description",
           label: "Description",
           required: true,
-          placeholder: "Tech tool",
+          placeholder: "Visiting area ",
         },
         {
           key: "floor",

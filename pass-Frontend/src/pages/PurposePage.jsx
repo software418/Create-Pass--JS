@@ -24,13 +24,13 @@ export const PurposePage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Purpose ",
         },
         {
           key: "description",
           label: "Description",
           required: true,
-          placeholder: "Tech tool",
+          placeholder: "Resone to visit",
         },
         {
           key: "status",

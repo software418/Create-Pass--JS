@@ -60,7 +60,7 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
               {fields.map((field) => (
                 <div key={field.key}>
                   {
-                    <label className="dynamic-label">
+                    <label className="dynamic-label" htmlFor={field.key}>
                       {field.label}
                       {field.required && (
                         <span className="dynamic-label-req">*</span>
@@ -69,6 +69,8 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                   }
                   {field.type === "select" && field.options ? (
                     <select
+                      id={field.key}
+                      name={field.key}
                       value={values[field.key]}
                       onChange={(e) =>
                         setValues((v) => ({
@@ -87,6 +89,8 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                   ) : (
                     <input
                       type={field.type ?? "text"}
+                      id={field.key}
+                      name={field.key}
                       value={values[field.key]}
                       onChange={(e) =>
                         setValues((v) => ({
@@ -343,6 +347,9 @@ export const DynamicDataPage = ({
           {
             <input
               type="text"
+              id="table-search"
+              name="tableSearch"
+              aria-label={`Search ${title.toLowerCase()}`}
               placeholder={`Search ${title.toLowerCase()}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}

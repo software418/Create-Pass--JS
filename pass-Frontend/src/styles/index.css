@@ -404,8 +404,12 @@
   @media (min-width: 768px) {
     .sidebar { display: block; }
   }
-  .sidebar-nav > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+  .sidebar-nav > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
   .sidebar-nav { padding-top: 1rem; padding-bottom: 1rem; }
+  .sidebar-nav a {
+    display: block;
+    text-decoration: none;
+  }
   .sidebar-item {
     display: flex;
     align-items: center;

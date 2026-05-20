@@ -1,4 +1,4 @@
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 export const Spinner = ({ className, size = "md" }) => {
   const sizes = {
     sm: "spinner-sm",

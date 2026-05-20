@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 export const Avatar = ({ src, alt, fallback, size = "md", className }) => {
   const [error, setError] = useState(false);
   const sizes = {

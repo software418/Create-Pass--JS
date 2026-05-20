@@ -101,7 +101,7 @@ export const CompanyRegisterPage = () => {
           </div>
 
           <div className="company-reg-field company-reg-logo-field">
-            <span className="company-reg-label">COMPANY LOGO</span>
+            <label className="company-reg-label" htmlFor="companyLogo">COMPANY LOGO</label>
             {logoPreview ? (
               <img
                 src={logoPreview}

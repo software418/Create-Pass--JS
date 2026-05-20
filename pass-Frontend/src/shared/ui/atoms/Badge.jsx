@@ -1,4 +1,4 @@
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 export const Badge = ({ className, variant = "default", ...props }) => {
   const variants = {
     default: "badge-default",

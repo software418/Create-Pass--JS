@@ -5,10 +5,12 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
+
 export const CameraInput = forwardRef(
   ({ onCapture, width = "300px", height = "200px" }, ref) => {
     const videoRef = useRef(null);
     const [capturedImage, setCapturedImage] = useState(null);
+
     // Expose logic to the main page
     useImperativeHandle(ref, () => ({
       takePhoto: () => {
@@ -43,15 +45,16 @@ export const CameraInput = forwardRef(
         setCapturedImage(null);
       },
     }));
+
     useEffect(() => {
       // Start stream only if no image is captured yet
       if (!capturedImage) {
         navigator.mediaDevices
-          .getUserMedia({ video: { facingMode: "user" } })
-          .then((stream) => {
-            if (videoRef.current) videoRef.current.srcObject = stream;
-          })
-          .catch((err) => console.error("Camera access denied", err));
+            .getUserMedia({ video: { facingMode: "user" } })
+            .then((stream) => {
+              if (videoRef.current) videoRef.current.srcObject = stream;
+            })
+            .catch((err) => console.error("Camera access denied", err));
       }
       // Cleanup: stop tracks when component unmounts
       return () => {
@@ -62,6 +65,7 @@ export const CameraInput = forwardRef(
         }
       };
     }, [capturedImage]);
+
     return (
       <div
         style={{

@@ -1,6 +1,6 @@
 import React from "react";
 import { AlertCircle, CheckCircle, Info, XCircle } from "lucide-react";
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 const icons = {
   default: <Info className="alert-icon" />,
   destructive: <XCircle className="alert-icon" />,

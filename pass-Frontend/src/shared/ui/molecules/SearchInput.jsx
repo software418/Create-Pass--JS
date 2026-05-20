@@ -1,7 +1,7 @@
 import React from "react";
 import { Search } from "lucide-react";
-import { Input } from "../atoms/Input";
-import { cn } from "../../utils/cn";
+import { Input } from "@/shared/ui/atoms/Input";
+import { cn } from "@/shared/utils/cn";
 export const SearchInput = React.forwardRef(({ className, ...props }, ref) => {
   return (
     <div className="search-input-wrapper">

@@ -24,13 +24,13 @@ export const VisitorTypePage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Type Name",
         },
         {
           key: "description",
           label: "Description",
           required: true,
-          placeholder: "Tech tool",
+          placeholder: "Type of visitor",
         },
         {
           key: "status",

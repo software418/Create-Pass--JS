@@ -1,4 +1,4 @@
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 import { X } from "lucide-react";
 export const Modal = ({ isOpen, onClose, title, children, className }) => {
   if (!isOpen) return null;

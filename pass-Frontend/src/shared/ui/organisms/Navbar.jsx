@@ -1,4 +1,4 @@
-import { cn } from "../../utils/cn";
+import { cn } from "@/shared/utils/cn";
 export const Navbar = ({ className, children }) => {
   return (
     <header

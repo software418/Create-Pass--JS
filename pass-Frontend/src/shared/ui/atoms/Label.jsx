@@ -1,9 +1,12 @@
 import React from "react";
-import { cn } from "../../utils/cn";
-export const Label = React.forwardRef(({ className, ...props }, ref) => {
+import { cn } from "@/shared/utils/cn";
+
+export const Label = React.forwardRef(({ className, htmlFor, ...props }, ref) => {
+  const Component = htmlFor ? "label" : "span";
   return (
-    <label
+    <Component
       ref={ref}
+      htmlFor={htmlFor}
       className={cn(
         "label",
         className,
@@ -13,3 +16,4 @@ export const Label = React.forwardRef(({ className, ...props }, ref) => {
   );
 });
 Label.displayName = "Label";
+

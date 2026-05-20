@@ -1,7 +1,7 @@
 import { Outlet, Link } from "react-router-dom";
-import { Navbar } from "../ui/organisms/Navbar";
-import { Sidebar, SidebarItem, SidebarGroup } from "../ui/organisms/Sidebar";
-import { Footer } from "../ui/organisms/Footer";
+import { Navbar } from "@/shared/ui/organisms/Navbar";
+import { Sidebar, SidebarItem, SidebarGroup } from "@/shared/ui/organisms/Sidebar";
+import { Footer } from "@/shared/ui/organisms/Footer";
 import {
   Package,
   LogOut,
@@ -18,9 +18,11 @@ import {
   IdCard,
   FileText,
   Calendar,
+  Printer,
+  Sliders,
 } from "lucide-react";
-import { Button } from "../ui/atoms/Button";
-import { Avatar } from "../ui/atoms/Avatar";
+import { Button } from "@/shared/ui/atoms/Button";
+import { Avatar } from "@/shared/ui/atoms/Avatar";
 export const DashboardLayout = () => {
   return (
     <div className="dashboard-layout">
@@ -92,6 +94,15 @@ export const DashboardLayout = () => {
                 </Link>
                 <Link to="/report/today">
                   <SidebarItem icon={Calendar} label="Inside Report" />
+                </Link>
+              </SidebarGroup>
+
+              <SidebarGroup icon={Printer} label="Print Settings">
+                <Link to="/report/print-pass">
+                  <SidebarItem icon={Printer} label="Print Pass by ID" />
+                </Link>
+                <Link to="/report/print-settings">
+                  <SidebarItem icon={Sliders} label="Print Setting" />
                 </Link>
               </SidebarGroup>
             </Sidebar>

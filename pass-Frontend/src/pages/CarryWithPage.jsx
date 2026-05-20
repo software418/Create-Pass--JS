@@ -24,7 +24,7 @@ export const CarryWithPage = () => {
           key: "name",
           label: "Item Name",
           required: true,
-          placeholder: "Mobile",
+          placeholder: "Enter Item Name",
         },
         {
           key: "description",
