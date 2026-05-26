@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { queryGet, queryPatch } from "@/shared/services/api";
@@ -6,9 +5,36 @@ import { StatCard } from "./components/StatCard";
 import { ActionFormCard } from "./components/ActionFormCard";
 import { DashboardTable } from "./components/DashboardTable";
 import { PrintPassModal } from "./components/PrintPassModal";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export default function DashbordPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Evaluate Permissions based on RBAC array
+  const perms = user?.roleRef?.permissions || [];
+  const dbPerms = perms.find((p) => p.module === "Dashboard");
+  const actions = dbPerms?.dashboardActions || {};
+  const isSuperAdmin = user?.role === "Super Admin";
+
+  // Actions
+  const canCreatePass = actions.create_pass || isSuperAdmin;
+  const canApprovePass = actions.approve || isSuperAdmin;
+  const canCheckIn = actions.check_in || isSuperAdmin;
+  const canCheckOut = actions.check_out || isSuperAdmin;
+  const canPrintPass = actions.print || isSuperAdmin;
+  const canViewDetail = actions.view_detail || isSuperAdmin;
+
+  // List Visibilities
+  const canViewRequestList = actions.view_requested_list || isSuperAdmin;
+  const canViewPendingList = actions.view_pending_approval_list || isSuperAdmin;
+  const canViewRejectedList = actions.view_rejected_list || isSuperAdmin;
+  const canViewApprovedList = actions.view_approved_list || isSuperAdmin;
+  const canViewInsideList = actions.view_inside_list || isSuperAdmin;
+  const canViewMultiDayList = actions.view_multi_day_list || isSuperAdmin;
+  const canViewExitedList = actions.view_exited_list || isSuperAdmin;
+  const canViewExpiredList = actions.view_expired_list || isSuperAdmin;
+
   const [dashboardState, setDashboardState] = useState({
     stats: { totalCompaniesGuest: 0, todaysGuest: 0 },
     requestPassData: [],
@@ -247,37 +273,39 @@ export default function DashbordPage() {
               }}
             >
               {/* Primary Action Button acting as a card */}
-              <button
-                onClick={() => navigate("/create-pass")}
-                style={{
-                  height: "auto",
-                  fontSize: "1.5rem",
-                  fontWeight: "700",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  padding: "2rem 1.5rem",
-                  backgroundColor: "#f59e0b",
-                  color: "#ffffff",
-                  border: "none",
-                  borderRadius: "0.75rem",
-                  cursor: "pointer",
-                  boxShadow: "0 4px 10px rgba(245, 158, 11, 0.3)",
-                  transition: "transform 0.2s, background-color 0.2s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.backgroundColor = "#d97706";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "none";
-                  e.currentTarget.style.backgroundColor = "#f59e0b";
-                }}
-              >
-                <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>➕</div>
-                <span>Create New Gate Pass</span>
-              </button>
+              {canCreatePass && (
+                <button
+                  onClick={() => navigate("/create-pass")}
+                  style={{
+                    height: "auto",
+                    fontSize: "1.5rem",
+                    fontWeight: "700",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "2rem 1.5rem",
+                    backgroundColor: "#f59e0b",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "0.75rem",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 10px rgba(245, 158, 11, 0.3)",
+                    transition: "transform 0.2s, background-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.backgroundColor = "#d97706";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.backgroundColor = "#f59e0b";
+                  }}
+                >
+                  <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>➕</div>
+                  <span>Create New Gate Pass</span>
+                </button>
+              )}
 
               <StatCard
                 title="Total Visitors Registered"
@@ -294,25 +322,31 @@ export default function DashbordPage() {
             </div>
 
             {/* Quick Actions / Forms */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-                gap: "1.5rem",
-                marginTop: "2rem",
-              }}
-            >
-              <ActionFormCard
-                title="PASS LOG IN (Check-In)"
-                buttonText="Log In"
-                onSubmit={(visitorId) => handleUpdateStatus(visitorId, "Checked-In")}
-              />
-              <ActionFormCard
-                title="PASS LOG OUT (Check-Out)"
-                buttonText="Log Out"
-                onSubmit={(visitorId) => handleUpdateStatus(visitorId, "Checked-Out")}
-              />
-            </div>
+            {(canCheckIn || canCheckOut) && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+                  gap: "1.5rem",
+                  marginTop: "2rem",
+                }}
+              >
+                {canCheckIn && (
+                  <ActionFormCard
+                    title="PASS LOG IN (Check-In)"
+                    buttonText="Log In"
+                    onSubmit={(visitorId) => handleUpdateStatus(visitorId, "Checked-In")}
+                  />
+                )}
+                {canCheckOut && (
+                  <ActionFormCard
+                    title="PASS LOG OUT (Check-Out)"
+                    buttonText="Log Out"
+                    onSubmit={(visitorId) => handleUpdateStatus(visitorId, "Checked-Out")}
+                  />
+                )}
+              </div>
+            )}
 
             {/* Loading Indicator */}
             {isLoading ? (
@@ -348,136 +382,152 @@ export default function DashbordPage() {
             ) : (
               /* Tables Section */
               <div style={{ marginTop: "1rem", paddingBottom: "5rem" }}>
-                <DashboardTable
-                  title="Requested Passes (Awaiting Creation)"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Email-Id",
-                  ]}
-                  data={dashboardState.requestPassData}
-                  actionLabel="Create Pass"
-                  actionButtonColor="#f59e0b"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=review-request`)}
-                />
+                {canViewRequestList && (
+                  <DashboardTable
+                    title="Requested Passes (Awaiting Creation)"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Email-Id",
+                    ]}
+                    data={dashboardState.requestPassData}
+                    actionLabel="Create Pass"
+                    actionButtonColor="#f59e0b"
+                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=review-request`)}
+                  />
+                )}
 
-                 <DashboardTable
-                  title="Pending Approval Passes"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Email-Id",
-                  ]}
-                  data={dashboardState.pendingApprovalPassData}
-                  actionLabel="Review & Approve"
-                  actionButtonColor="#0f766e"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=approve`)}
-                />
+                {canViewPendingList && (
+                  <DashboardTable
+                    title="Pending Approval Passes"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Email-Id",
+                    ]}
+                    data={dashboardState.pendingApprovalPassData}
+                    actionLabel="Review & Approve"
+                    actionButtonColor="#0f766e"
+                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=approve`)}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Rejected Passes"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Rejected By",
-                    "Rejection Reason",
-                    "Status",
-                  ]}
-                  data={dashboardState.rejectedPassData}
-                  actionLabel="View Details"
-                  actionButtonColor="#475569"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
-                />
+                {canViewRejectedList && (
+                  <DashboardTable
+                    title="Rejected Passes"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Rejected By",
+                      "Rejection Reason",
+                      "Status",
+                    ]}
+                    data={dashboardState.rejectedPassData}
+                    actionLabel="View Details"
+                    actionButtonColor="#475569"
+                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Approved Visitor Passes (Ready to Check In)"
-                  columns={["PASS", "GATE PASS ID", "Pass Date", "Timer", "Name", "Employee", "Mobile No"]}
-                  data={dashboardState.approvedPassData}
-                  actionLabel="Check-In"
-                  actionButtonColor="#3b82f6"
-                  onAction={(row) => handleCheckIn(row)}
-                  showPrintAction={true}
-                  onPrint={(row) => handlePrintTrigger(row)}
-                />
+                {canViewApprovedList && (
+                  <DashboardTable
+                    title="Approved Visitor Passes (Ready to Check In)"
+                    columns={["PASS", "GATE PASS ID", "Pass Date", "Timer", "Name", "Employee", "Mobile No"]}
+                    data={dashboardState.approvedPassData}
+                    actionLabel={canCheckIn ? "Check-In" : undefined}
+                    actionButtonColor="#3b82f6"
+                    onAction={canCheckIn ? (row) => handleCheckIn(row) : undefined}
+                    showPrintAction={canPrintPass}
+                    onPrint={canPrintPass ? (row) => handlePrintTrigger(row) : undefined}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Currently Inside Facility"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Timer",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Checked-In By",
-                    "Checked-In At",
-                  ]}
-                  data={dashboardState.insidePassData}
-                  actionLabel="Check-Out"
-                  actionButtonColor="#e11d48"
-                  onAction={(row) => handleCheckOut(row)}
-                  showPrintAction={true}
-                  onPrint={(row) => handlePrintTrigger(row)}
-                />
+                {canViewInsideList && (
+                  <DashboardTable
+                    title="Currently Inside Facility"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Timer",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Checked-In By",
+                      "Checked-In At",
+                    ]}
+                    data={dashboardState.insidePassData}
+                    actionLabel={canCheckOut ? "Check-Out" : undefined}
+                    actionButtonColor="#e11d48"
+                    onAction={canCheckOut ? (row) => handleCheckOut(row) : undefined}
+                    showPrintAction={canPrintPass}
+                    onPrint={canPrintPass ? (row) => handlePrintTrigger(row) : undefined}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Multi Day Visit Passes"
-                  columns={["GATE PASS ID", "Name", "Date", "Employee", "Mobile No", "Email-Id", "EXP Date", "Status"]}
-                  data={dashboardState.multiDayPassData}
-                  actionLabel="View Details"
-                  actionButtonColor="#6d28d9"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
-                />
+                {canViewMultiDayList && (
+                  <DashboardTable
+                    title="Multi Day Visit Passes"
+                    columns={["GATE PASS ID", "Name", "Date", "Employee", "Mobile No", "Email-Id", "EXP Date", "Status"]}
+                    data={dashboardState.multiDayPassData}
+                    actionLabel="View Details"
+                    actionButtonColor="#6d28d9"
+                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Exited Visitors (Exit Pass)"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Checked-In",
-                    "Checked-Out",
-                  ]}
-                  data={dashboardState.exitApprovedPassData}
-                  actionLabel="View Details"
-                  actionButtonColor="#475569"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
-                  showPrintAction={true}
-                  onPrint={(row) => handlePrintTrigger(row)}
-                />
+                {canViewExitedList && (
+                  <DashboardTable
+                    title="Exited Visitors (Exit Pass)"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Checked-In",
+                      "Checked-Out",
+                    ]}
+                    data={dashboardState.exitApprovedPassData}
+                    actionLabel={canViewDetail ? "View Details" : undefined}
+                    actionButtonColor="#475569"
+                    onAction={canViewDetail ? (row) => navigate(`/pass/${row.id}/action?mode=view`) : undefined}
+                    showPrintAction={canPrintPass}
+                    onPrint={canPrintPass ? (row) => handlePrintTrigger(row) : undefined}
+                  />
+                )}
 
-                <DashboardTable
-                  title="Expired Passes (Past Date)"
-                  columns={[
-                    "PASS",
-                    "GATE PASS ID",
-                    "Pass Date",
-                    "Name",
-                    "Employee",
-                    "Mobile No",
-                    "Status",
-                  ]}
-                  data={dashboardState.expiredPassData}
-                  actionLabel="View Details"
-                  actionButtonColor="#475569"
-                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
-                />
+                {canViewExpiredList && (
+                  <DashboardTable
+                    title="Expired Passes (Past Date)"
+                    columns={[
+                      "PASS",
+                      "GATE PASS ID",
+                      "Pass Date",
+                      "Name",
+                      "Employee",
+                      "Mobile No",
+                      "Status",
+                    ]}
+                    data={dashboardState.expiredPassData}
+                    actionLabel="View Details"
+                    actionButtonColor="#475569"
+                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
+                  />
+                )}
               </div>
             )}
           </div>

@@ -1,8 +1,9 @@
-import { jsx as _jsx } from "react/jsx-runtime";
-import { BrowserRouter } from "react-router-dom";
-import { AppRoutes } from "./app/routes";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./app/routes.jsx";
 import "./styles/index.css";
+
 function App() {
-  return _jsx(BrowserRouter, { children: _jsx(AppRoutes, {}) });
+  return <RouterProvider router={router} />;
 }
+
 export default App;

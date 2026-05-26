@@ -14,6 +14,18 @@ export function createApiClient(clientConfig, logger = defaultLogger) {
     slowThresholdMs = 1_000,
   } = clientConfig;
   const apiClient = axios.create({ baseURL, withCredentials, timeout });
+  
+  let isRefreshing = false;
+  let refreshSubscribers = [];
+
+  const subscribeTokenRefresh = (cb) => {
+    refreshSubscribers.push(cb);
+  };
+
+  const onRefreshed = (err) => {
+    refreshSubscribers.forEach((cb) => cb(err));
+    refreshSubscribers = [];
+  };
   // ── Metrics ─────────────────────────────────────────────────────────────────
   const endpointMetrics = new Map();
   let requestSequence = 0;
@@ -93,6 +105,12 @@ export function createApiClient(clientConfig, logger = defaultLogger) {
       startTimeMs: performance.now(),
       startedAtISO: new Date().toISOString(),
     };
+
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     if (httpMetricsEnabled) {
       logger.http("request", {
         requestId: config.metadata.requestId,
@@ -119,6 +137,7 @@ export function createApiClient(clientConfig, logger = defaultLogger) {
       const status = err.response?.status ?? 0;
       // FIX: Read error message details or server response payload if validation failed
       const errorData = err.response?.data ?? null;
+
       trackHttpResponse(
         original,
         status,
@@ -132,6 +151,45 @@ export function createApiClient(clientConfig, logger = defaultLogger) {
         code: err.code,
         message: err.response?.data?.message ?? err.message,
       });
+
+      // Handle Token Refresh logic
+      if (status === 401 && !original._retry && original.url !== "/auth/refresh" && original.url !== "/auth/login") {
+        if (isRefreshing) {
+          try {
+            await new Promise((resolve, reject) => {
+              subscribeTokenRefresh((err) => {
+                if (err) reject(err);
+                else resolve();
+              });
+            });
+            return apiClient(original);
+          } catch (e) {
+            return Promise.reject(e);
+          }
+        }
+
+        original._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshRes = await axios.post(`${baseURL}/auth/refresh`, {}, { withCredentials: true });
+          const newAccessToken = refreshRes.data.accessToken;
+          localStorage.setItem("accessToken", newAccessToken);
+          
+          isRefreshing = false;
+          onRefreshed(null);
+          
+          original.headers.Authorization = `Bearer ${newAccessToken}`;
+          return apiClient(original);
+        } catch (refreshErr) {
+          isRefreshing = false;
+          onRefreshed(refreshErr);
+          localStorage.removeItem("accessToken");
+          window.location.href = "/login";
+          return Promise.reject(refreshErr);
+        }
+      }
+
       return Promise.reject(err);
     },
   );

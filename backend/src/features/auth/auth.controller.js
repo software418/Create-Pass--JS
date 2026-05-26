@@ -1,78 +1,91 @@
-var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
-  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-    desc = {
-      enumerable: true,
-      get: function () {
-        return m[k];
-      }
-    };
-  }
-  Object.defineProperty(o, k2, desc);
-} : function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-});
-var __setModuleDefault = this && this.__setModuleDefault || (Object.create ? function (o, v) {
-  Object.defineProperty(o, "default", {
-    enumerable: true,
-    value: v
-  });
-} : function (o, v) {
-  o["default"] = v;
-});
-var __importStar = this && this.__importStar || function () {
-  var ownKeys = function (o) {
-    ownKeys = Object.getOwnPropertyNames || function (o) {
-      var ar = [];
-      for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-      return ar;
-    };
-    return ownKeys(o);
-  };
-  return function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-    __setModuleDefault(result, mod);
-    return result;
-  };
-}();
-import * as catchAsync_1 from "../../utils/catchAsync.js";
+import { catchAsync } from "../../utils/catchAsync.js";
 import * as authService from "./auth.service.js";
-export const register = (0, catchAsync_1.catchAsync)(async (req, res) => {
-  const {
-    user,
-    token
-  } = await authService.registerUser(req.body);
+import AppError from "../../utils/appError.js";
+import { verifyRefreshToken, signAccessToken } from "../../utils/jwt.utils.js";
+import { prisma } from "../../config/db.js";
+
+const setRefreshTokenCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
+
+export const register = catchAsync(async (req, res) => {
+  const { user, accessToken, refreshToken } = await authService.registerUser(req.body);
+  
+  setRefreshTokenCookie(res, refreshToken);
+  
   res.status(201).json({
     status: "success",
-    token,
+    accessToken,
     data: {
-      user
-    }
+      user,
+    },
   });
 });
-export const login = (0, catchAsync_1.catchAsync)(async (req, res) => {
-  const {
-    user,
-    token
-  } = await authService.loginUser(req.body);
+
+export const login = catchAsync(async (req, res) => {
+  const { user, accessToken, refreshToken } = await authService.loginUser(req.body);
+  
+  setRefreshTokenCookie(res, refreshToken);
+  
   res.status(200).json({
     status: "success",
-    token,
+    accessToken,
     data: {
-      user
-    }
+      user,
+    },
   });
 });
-export const getMe = (0, catchAsync_1.catchAsync)(async (req, res) => {
+
+export const refresh = catchAsync(async (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken;
+  
+  if (!refreshToken) {
+    return next(new AppError("No refresh token found", 401, "UNAUTHORIZED"));
+  }
+
+  const decoded = verifyRefreshToken(refreshToken);
+  
+  if (!decoded) {
+    return next(new AppError("Invalid or expired refresh token", 401, "UNAUTHORIZED"));
+  }
+  
+  const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+  
+  if (!user) {
+    return next(new AppError("User no longer exists", 401, "UNAUTHORIZED"));
+  }
+  
+  const accessToken = signAccessToken(user.id);
+  
+  res.status(200).json({
+    status: "success",
+    accessToken
+  });
+});
+
+export const getMe = catchAsync(async (req, res) => {
   // requires auth middleware to set req.user
   res.status(200).json({
     status: "success",
     data: {
-      user: req.user
-    }
+      user: req.user,
+    },
+  });
+});
+
+export const getUsers = catchAsync(async (req, res) => {
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true, role: true, roleId: true }
+  });
+  res.status(200).json({
+    status: "success",
+    data: {
+      users,
+    },
   });
 });

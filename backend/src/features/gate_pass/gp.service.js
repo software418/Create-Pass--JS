@@ -3,6 +3,8 @@ import fs_1 from "fs";
 import path_1 from "path";
 import logger_utils_1 from "../../utils/logger.utils.js";
 import { prisma } from "../../config/db.js";
+import { createNotification } from "../notifications/notification.service.js";
+
 const generateGatePassId = async () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let isUnique = false;
@@ -102,7 +104,7 @@ const processForm = async (data, file, aadharFiles) => {
         purpose: data.purpose,
         allowedHours: data.allowedHours,
         photoUrl: photoUrl,
-        status: data.status || "Requested",
+        status: data.status || "Pending", // Defaulting to Pending to await manager approval
         persons: {
           create: personsWithFileUrls.map(p => ({
             name: p.name || "",
@@ -116,6 +118,30 @@ const processForm = async (data, file, aadharFiles) => {
         persons: true
       }
     });
+
+    // SMART ROUTING: Notify Department Manager
+    if (data.toMeetWith) {
+      const employee = await prisma.employee.findFirst({
+        where: { 
+          OR: [
+            { id: data.toMeetWith },
+            { name: data.toMeetWith } // Fallback for legacy string names
+          ]
+        },
+        include: { departmentRef: true }
+      });
+
+      if (employee && employee.departmentRef && employee.departmentRef.managerUserId) {
+        await createNotification(
+          employee.departmentRef.managerUserId,
+          "New Gate Pass Approval Request",
+          `Visitor ${pass.name} is waiting for approval to meet ${employee.name}.`,
+          "approval_request",
+          `/dashboard/pass/${pass.id}`
+        );
+      }
+    }
+
     logger_utils_1.info(`Gate pass created: ${pass.id}`);
     return {
       success: true,

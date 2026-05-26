@@ -3,6 +3,8 @@ import { FormField } from "@/shared/ui/molecules/FormField";
 import { Input } from "@/shared/ui/atoms/Input";
 import { Checkbox } from "@/shared/ui/atoms/Checkbox";
 
+import { Autocomplete } from "@/shared/ui/molecules/Autocomplete";
+
 export const VisitDetailsSection = ({
   formData,
   handleInputChange,
@@ -13,6 +15,11 @@ export const VisitDetailsSection = ({
   idType,
   setFormData,
 }) => {
+  const employeeOptions = employees.map(e => ({
+    value: e._id,
+    label: e.designation ? `${e.name} - ${e.designation}` : e.name
+  }));
+
   return (
     <>
       <div className="form-grid-2 gap-6">
@@ -53,20 +60,14 @@ export const VisitDetailsSection = ({
 
       <div className="form-grid-2 gap-6">
         <FormField label="To Meet with Employee" htmlFor="toMeetWith">
-          <select
+          <Autocomplete
             name="toMeetWith"
-            id="toMeetWith"
+            options={employeeOptions}
             value={formData.toMeetWith}
             onChange={handleInputChange}
-            className="form-select"
-          >
-            <option value="">Select</option>
-            {employees.map((e, index) => (
-              <option key={e._id || index} value={e._id}>
-                {e.name}
-              </option>
-            ))}
-          </select>
+            placeholder="Type to search employee..."
+          />
+          <p className="text-xs text-gray-500 mt-1">Select from suggestions to ensure proper approval routing.</p>
         </FormField>
 
         <FormField label="Carry With">

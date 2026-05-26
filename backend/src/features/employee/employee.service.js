@@ -1,5 +1,6 @@
 import appError_1 from "../../utils/appError.js";
 import { prisma } from "../../config/db.js";
+import * as bcrypt from "bcryptjs";
 
 export const getEmployeeService = async () => {
   return await prisma.employee.findMany({
@@ -10,11 +11,49 @@ export const getEmployeeService = async () => {
 };
 
 export const createEmployeeService = async (data) => {
-  return await prisma.employee.create({
-    data: {
-      ...data,
-      status: "active"
+  const { password, ...employeeData } = data;
+
+  if (!password) {
+    throw new appError_1("Password is required to create an employee user account", 400, "BAD_REQUEST");
+  }
+
+  // Fallback for legacy required string field
+  if (!employeeData.department) {
+    employeeData.department = "Managed via Department ID";
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  // Use a transaction to ensure both Employee and User are created
+  return await prisma.$transaction(async (tx) => {
+    const employee = await tx.employee.create({
+      data: {
+        ...employeeData,
+        status: "active"
+      }
+    });
+
+    // Check if user with same email exists
+    if (employee.email) {
+      const existingUser = await tx.user.findUnique({ where: { email: employee.email } });
+      if (existingUser) {
+        throw new appError_1("A user with this email already exists", 400, "CONFLICT");
+      }
+
+      await tx.user.create({
+        data: {
+          name: employee.name,
+          email: employee.email,
+          password: hashedPassword,
+          roleId: employee.roleId,
+          departmentId: employee.departmentId,
+          assignedLocationId: employee.assignedLocationId,
+          active: true,
+        }
+      });
     }
+
+    return employee;
   });
 };
 

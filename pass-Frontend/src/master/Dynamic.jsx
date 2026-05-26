@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useAuth } from "@/features/auth/AuthContext";
 // ─── Default status colors ───────────────────────────────────────────────────
 const DEFAULT_STATUS_COLORS = {
   active: "bg-green-50 text-green-800 border border-green-200",
@@ -19,7 +20,7 @@ function displayValue(value) {
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
-const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
+const FullPageForm = ({ title, fields, initialValues = {}, onSubmit, onClose, listTitle }) => {
   const [values, setValues] = useState(() => {
     const defaults = {};
     fields.forEach((f) => {
@@ -32,33 +33,23 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
     onSubmit(values);
   };
   return (
-    <div
-      className="dynamic-modal-overlay"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      {
-        <div className="dynamic-modal-container">
-          {
-            <div className="dynamic-modal-header">
-              {
-                <h2 className="dynamic-modal-title">
-                  {title}
-                </h2>
-              }
-              {
-                <button
-                  onClick={onClose}
-                  className="dynamic-modal-close"
-                >
-                  ✕
-                </button>
-              }
-            </div>
-          }
-          {
-            <form onSubmit={handleSubmit} className="dynamic-modal-form">
-              {fields.map((field) => (
-                <div key={field.key}>
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex justify-between items-center mb-6 border-b pb-4">
+        <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-gray-600 hover:text-gray-900 font-medium"
+        >
+          &larr; Back to {listTitle}
+        </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {fields.map((field) => (
+              <div key={field.key} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
                   {
                     <label className="dynamic-label" htmlFor={field.key}>
                       {field.label}
@@ -82,9 +73,14 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                       className="dynamic-input"
                     >
                       <option value="">Select {field.label}...</option>
-                      {field.options.map((opt, optIdx) => (
-                        <option key={opt || optIdx} value={opt}>{opt}</option>
-                      ))}
+                      {field.options.map((opt, optIdx) => {
+                        const isObject = typeof opt === "object" && opt !== null;
+                        const val = isObject ? opt.value : opt;
+                        const label = isObject ? opt.label : opt;
+                        return (
+                          <option key={val || optIdx} value={val}>{label}</option>
+                        );
+                      })}
                     </select>
                   ) : (
                     <input
@@ -107,32 +103,25 @@ const Modal = ({ title, fields, initialValues = {}, onSubmit, onClose }) => {
                     />
                   )}
                 </div>
-              ))}
-              {
-                <div className="dynamic-actions">
-                  {
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className="dynamic-btn-cancel"
-                    >
-                      Cancel
-                    </button>
-                  }
-                  {
-                    <button
-                      type="submit"
-                      className="dynamic-btn-save"
-                    >
-                      Save
-                    </button>
-                  }
-                </div>
-              }
-            </form>
-          }
-        </div>
-      }
+            ))}
+          </div>
+          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              Save {title.replace(/Edit |Add New /, "")}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
@@ -218,12 +207,23 @@ export const DynamicDataPage = ({
   onEdit,
   onDelete,
   formFields = [],
+  moduleName,
 }) => {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState("asc");
   const [modalMode, setModalMode] = useState(null);
   const [editRow, setEditRow] = useState(null);
+
+  // ── Determine permissions ──
+  const resolvedModule = moduleName || title.replace(/s$/, "").replace(/\s+/g, "");
+  const perm = user?.role === "Super Admin" ? { canRead: true, canCreate: true, canUpdate: true, canDelete: true } : 
+               user?.roleRef?.permissions?.find(p => p.module === resolvedModule) || {};
+  
+  const canCreateAction = perm.canCreate ? onCreate : undefined;
+  const canEditAction = perm.canUpdate ? onEdit : undefined;
+  const canDeleteAction = perm.canDelete ? onDelete : undefined;
   // ── Merge status colors ──
   const mergedStatusColors = { ...DEFAULT_STATUS_COLORS, ...statusColors };
   // ── Searchable columns ──
@@ -263,13 +263,13 @@ export const DynamicDataPage = ({
   };
   // ── CRUD ──
   const handleCreate = (values) => {
-    onCreate?.(values);
+    canCreateAction?.(values);
     setModalMode(null);
   };
   const handleEdit = (values) => {
     if (!editRow) return;
     const id = String(editRow[idKey] ?? "");
-    onEdit?.(id, values);
+    canEditAction?.(id, values);
     setModalMode(null);
     setEditRow(null);
   };
@@ -279,7 +279,7 @@ export const DynamicDataPage = ({
       ? String(getNestedValue(row, formFields[0].key) ?? id)
       : id;
     if (window.confirm(`Delete "${label}"? This cannot be undone.`)) {
-      onDelete?.(id);
+      canDeleteAction?.(id);
     }
   };
   const openEdit = (row) => {
@@ -298,7 +298,7 @@ export const DynamicDataPage = ({
       </span>
     );
   };
-  const hasActions = onCreate || onEdit || onDelete;
+  const hasActions = canCreateAction || canEditAction || canDeleteAction;
   const initialEditValues = editRow
     ? Object.fromEntries(
         formFields.map((f) => [
@@ -309,6 +309,35 @@ export const DynamicDataPage = ({
         ]),
       )
     : {};
+
+  if (modalMode === "add" && formFields.length > 0) {
+    return (
+      <FullPageForm
+        title={`Add New ${title.replace(/s$/, "")}`}
+        listTitle={title}
+        fields={formFields}
+        onSubmit={handleCreate}
+        onClose={() => setModalMode(null)}
+      />
+    );
+  }
+
+  if (modalMode === "edit" && formFields.length > 0 && editRow) {
+    return (
+      <FullPageForm
+        title={`Edit ${title.replace(/s$/, "")}`}
+        listTitle={title}
+        fields={formFields}
+        initialValues={initialEditValues}
+        onSubmit={handleEdit}
+        onClose={() => {
+          setModalMode(null);
+          setEditRow(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-5">
       {
@@ -325,7 +354,7 @@ export const DynamicDataPage = ({
               )}
             </div>
           }
-          {onCreate && formFields.length > 0 && (
+          {canCreateAction && formFields.length > 0 && (
             <button
               onClick={() => setModalMode("add")}
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm transition-colors"
@@ -452,7 +481,7 @@ export const DynamicDataPage = ({
                               <td className="px-5 py-3.5 text-right whitespace-nowrap">
                                 {
                                   <div className="flex items-center justify-end gap-3">
-                                    {onEdit && formFields.length > 0 && (
+                                    {canEditAction && formFields.length > 0 && (
                                       <button
                                         onClick={() => openEdit(row)}
                                         className="text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
@@ -460,7 +489,7 @@ export const DynamicDataPage = ({
                                         Edit
                                       </button>
                                     )}
-                                    {onDelete && (
+                                    {canDeleteAction && (
                                       <button
                                         onClick={() => handleDelete(row)}
                                         className="text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
@@ -495,26 +524,6 @@ export const DynamicDataPage = ({
           )}
         </div>
       }
-      {modalMode === "add" && formFields.length > 0 && (
-        <Modal
-          title={`Add New ${title.replace(/s$/, "")}`}
-          fields={formFields}
-          onSubmit={handleCreate}
-          onClose={() => setModalMode(null)}
-        />
-      )}
-      {modalMode === "edit" && formFields.length > 0 && editRow && (
-        <Modal
-          title={`Edit ${title.replace(/s$/, "")}`}
-          fields={formFields}
-          initialValues={initialEditValues}
-          onSubmit={handleEdit}
-          onClose={() => {
-            setModalMode(null);
-            setEditRow(null);
-          }}
-        />
-      )}
     </div>
   );
 };

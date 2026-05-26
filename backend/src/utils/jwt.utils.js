@@ -1,23 +1,29 @@
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    default: mod
-  };
+import jwt from "jsonwebtoken";
+import env from "../config/env.js";
+
+const signAccessToken = (id) => {
+  return jwt.sign({ id }, env.JWT_SECRET, { expiresIn: "15m" });
 };
-import jsonwebtoken_1 from "jsonwebtoken";
-import env_1 from "../config/env.js";
-const signToken = id => {
-  return jsonwebtoken_1.sign({
-    id
-  }, env_1.JWT_SECRET, {
-    expiresIn: 15
-  });
-};
-export { signToken };
-const verifyToken = token => {
+
+const verifyAccessToken = (token) => {
   try {
-    return jsonwebtoken_1.verify(token, env_1.JWT_SECRET);
+    return jwt.verify(token, env.JWT_SECRET);
   } catch (error) {
     return null;
   }
 };
-export { verifyToken };
+
+const signRefreshToken = (id) => {
+  // Using a longer expiration for refresh token (e.g., 7 days)
+  return jwt.sign({ id }, env.JWT_SECRET, { expiresIn: "7d" });
+};
+
+const verifyRefreshToken = (token) => {
+  try {
+    return jwt.verify(token, env.JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+};
+
+export { signAccessToken, verifyAccessToken, signRefreshToken, verifyRefreshToken };
