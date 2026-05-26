@@ -20,6 +20,66 @@ function displayValue(value) {
   if (typeof value === "object") return JSON.stringify(value);
   return String(value);
 }
+
+const SearchableSelect = ({ field, value, onChange, options }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const filtered = options.filter(o => {
+    const lbl = typeof o === "object" ? o.label : o;
+    return lbl.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+  
+  const selectedObj = options.find(o => {
+    const v = typeof o === "object" ? o.value : o;
+    return v === value;
+  });
+  const displayLabel = selectedObj ? (typeof selectedObj === "object" ? selectedObj.label : selectedObj) : `Select ${field.label}...`;
+
+  return (
+    <div className="relative">
+      <div 
+        className="dynamic-input cursor-pointer flex justify-between items-center bg-white" 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="truncate text-gray-700">{displayLabel}</span>
+        <span className="text-gray-400 text-xs">▼</span>
+      </div>
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+            <div className="sticky top-0 bg-white p-2 border-b border-gray-100">
+              <input 
+                type="text" 
+                className="w-full p-1.5 border border-gray-200 rounded text-sm outline-none focus:border-blue-500" 
+                placeholder="Type to search..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                onClick={e => e.stopPropagation()}
+                autoFocus
+              />
+            </div>
+            {filtered.length === 0 ? <div className="p-3 text-sm text-gray-500 text-center">No results found</div> : null}
+            {filtered.map((opt, i) => {
+               const v = typeof opt === "object" ? opt.value : opt;
+               const l = typeof opt === "object" ? opt.label : opt;
+               return (
+                 <div 
+                   key={v || i}
+                   className={`p-2.5 text-sm hover:bg-blue-50 cursor-pointer ${v === value ? 'bg-blue-50 font-medium text-blue-700' : 'text-gray-700'}`}
+                   onClick={() => { onChange(v); setIsOpen(false); setSearchTerm(""); }}
+                 >
+                   {l}
+                 </div>
+               )
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 const FullPageForm = ({ title, fields, initialValues = {}, onSubmit, onClose, listTitle }) => {
   const [values, setValues] = useState(() => {
     const defaults = {};
@@ -58,7 +118,14 @@ const FullPageForm = ({ title, fields, initialValues = {}, onSubmit, onClose, li
                       )}
                     </label>
                   }
-                  {field.type === "select" && field.options ? (
+                  {field.type === "searchable-select" && field.options ? (
+                    <SearchableSelect
+                      field={field}
+                      value={values[field.key]}
+                      options={field.options}
+                      onChange={(v) => setValues(prev => ({ ...prev, [field.key]: v }))}
+                    />
+                  ) : field.type === "select" && field.options ? (
                     <select
                       id={field.key}
                       name={field.key}
@@ -401,13 +468,13 @@ export const DynamicDataPage = ({
         </div>
       }
       {
-        <div className="overflow-hidden border border-gray-200 rounded-xl bg-white shadow-sm">
+        <div className="border border-gray-200 rounded-xl bg-white shadow-sm flex flex-col" style={{ maxHeight: "calc(100vh - 220px)", minHeight: "400px" }}>
           {
-            <div className="overflow-x-auto">
+            <div className="overflow-auto flex-1 relative custom-scrollbar">
               {
-                <table className="w-full text-sm text-left">
+                <table className="w-full text-sm text-left border-collapse">
                   {
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
                       {
                         <tr>
                           {columns.map((col) => (

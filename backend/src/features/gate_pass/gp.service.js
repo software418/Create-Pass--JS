@@ -104,7 +104,7 @@ const processForm = async (data, file, aadharFiles) => {
         purpose: data.purpose,
         allowedHours: data.allowedHours,
         photoUrl: photoUrl,
-        status: data.status || "Pending", // Defaulting to Pending to await manager approval
+        status: data.status || "Requested", // Defaulting to Requested to go to Requested Passes table
         persons: {
           create: personsWithFileUrls.map(p => ({
             name: p.name || "",
@@ -131,14 +131,24 @@ const processForm = async (data, file, aadharFiles) => {
         include: { departmentRef: true }
       });
 
-      if (employee && employee.departmentRef && employee.departmentRef.managerUserId) {
-        await createNotification(
-          employee.departmentRef.managerUserId,
-          "New Gate Pass Approval Request",
-          `Visitor ${pass.name} is waiting for approval to meet ${employee.name}.`,
-          "approval_request",
-          `/dashboard/pass/${pass.id}`
-        );
+      if (employee && employee.departmentRef && employee.departmentRef.managerEmployeeId) {
+        const managerEmp = await prisma.employee.findUnique({
+          where: { id: employee.departmentRef.managerEmployeeId }
+        });
+        if (managerEmp && managerEmp.email) {
+          const managerUser = await prisma.user.findUnique({
+            where: { email: managerEmp.email }
+          });
+          if (managerUser) {
+            await createNotification(
+              managerUser.id,
+              "New Gate Pass Approval Request",
+              `Visitor ${pass.name} is waiting for approval to meet ${employee.name}.`,
+              "approval_request",
+              `/dashboard/pass/${pass.id}`
+            );
+          }
+        }
       }
     }
 
@@ -156,9 +166,6 @@ const processForm = async (data, file, aadharFiles) => {
 
 const resolveDynamicStatus = (pass) => {
   if (!pass) return null;
-  if (pass.status === 'Checked-In' || pass.status === 'Checked-Out') {
-    return pass.status;
-  }
   const todayStr = new Date().toISOString().split('T')[0];
   const formatDate = (date) => {
     if (!date) return '';
@@ -173,9 +180,14 @@ const resolveDynamicStatus = (pass) => {
   } else {
     isExpired = todayStr > expDateStr;
   }
-  return isExpired ? 'Expired' : pass.status;
-};
+  
+  if (isExpired) return 'Expired';
 
+  if (pass.status === 'Checked-In' || pass.status === 'Checked-Out') {
+    return pass.status;
+  }
+  return pass.status;
+};
 const getPassesService = async (filters = {}) => {
   try {
     const passes = await prisma.formData.findMany({
@@ -233,10 +245,10 @@ const updatePassStatusService = async (idOrCode, status, updateData = {}) => {
       if (pass.status === "Checked-In") {
         throw new Error("Cannot check in. Pass is already checked in.");
       }
-      if (pass.status === "Checked-Out") {
-        throw new Error("Cannot check in. Pass has already checked out.");
+      if (pass.status === "Checked-Out" && pass.gatePassType !== "multi") {
+        throw new Error("Cannot check in. Single-day pass has already checked out.");
       }
-      if (pass.status !== "Approved") {
+      if (pass.status !== "Approved" && pass.status !== "Checked-Out") {
         throw new Error(`Cannot check in. Pass is not Approved (current status is: ${pass.status}).`);
       }
 
@@ -351,12 +363,10 @@ const getDashboardDataService = async () => {
 
       // Determine if expired dynamically
       let isExpired = false;
-      if (p.status !== 'Checked-In' && p.status !== 'Checked-Out') {
-        if (p.gatePassType === 'single') {
-          isExpired = todayStr > formattedPassDate;
-        } else {
-          isExpired = todayStr > formattedExpDate;
-        }
+      if (p.gatePassType === 'single') {
+        isExpired = todayStr > formattedPassDate;
+      } else {
+        isExpired = todayStr > formattedExpDate;
       }
 
       const resolvedStatus = isExpired ? 'Expired' : p.status;
@@ -398,7 +408,7 @@ const getDashboardDataService = async () => {
     // Filter by statuses exactly according to categories
     const requestPassData = mappedPasses.filter(p => p.status === 'Requested');
     const pendingApprovalPassData = mappedPasses.filter(p => p.status === 'Pending');
-    const approvedPassData = mappedPasses.filter(p => p.status === 'Approved');
+    const approvedPassData = mappedPasses.filter(p => p.status === 'Approved' || (p.status === 'Checked-Out' && p.gatePassType === 'multi'));
     const insidePassData = mappedPasses.filter(p => p.status === 'Checked-In');
     const multiDayPassData = mappedPasses.filter(p => p.gatePassType === 'multi' && p.status !== 'Expired');
     const exitApprovedPassData = mappedPasses.filter(p => p.status === 'Checked-Out');

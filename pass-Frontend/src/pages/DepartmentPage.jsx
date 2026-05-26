@@ -1,21 +1,29 @@
 import { useState, useEffect, useMemo } from "react";
 import DynamicDataPage from "@/master/Dynamic";
 import { useDepartment } from "@/features/department/useDepartment";
+import { useEmployees } from "@/features/employee/useEmployee";
 import api from "@/shared/services/api";
 
 export const DepartmentPage = () => {
   const { department, isLoading, error, onCreate, onUpdate, onDelete } = useDepartment();
-  const [users, setUsers] = useState([]);
+  const { employees, isLoading: employeesLoading } = useEmployees();
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
-    api.get("/auth/users").then((res) => {
-      setUsers(res.data.data.users);
+    api.get("/roles").then((res) => {
+      setRoles(res.data.data.roles);
     }).catch(console.error);
   }, []);
 
-  const userOptions = useMemo(() => {
-    return users.map((u) => ({ value: u.id, label: `${u.name} (${u.email})` }));
-  }, [users]);
+  const employeeOptions = useMemo(() => {
+    return employees.map((emp) => {
+      const role = roles.find((r) => r.id === emp.roleId)?.name || "No Role";
+      return { 
+        value: emp.id || emp._id, 
+        label: `${emp.name} (${emp.employeeId}) - ${role}` 
+      };
+    });
+  }, [employees, roles]);
 
   return (
     <DynamicDataPage
@@ -23,7 +31,7 @@ export const DepartmentPage = () => {
       subtitle="Manage departments and assign managers for smart routing"
       data={department.map(d => ({
         ...d,
-        managerName: users.find(u => u.id === d.managerUserId)?.name || "—"
+        managerName: employees.find(e => (e.id || e._id) === d.managerEmployeeId)?.name || "—"
       }))}
       idKey="_id"
       columns={[
@@ -31,7 +39,7 @@ export const DepartmentPage = () => {
         { key: "managerName", label: "Department Manager", sortable: true },
         { key: "status", label: "Status", type: "status" },
       ]}
-      isLoading={isLoading}
+      isLoading={isLoading || employeesLoading}
       error={error}
       onCreate={onCreate}
       onEdit={onUpdate}
@@ -44,10 +52,10 @@ export const DepartmentPage = () => {
           placeholder: "Department",
         },
         {
-          key: "managerUserId",
+          key: "managerEmployeeId",
           label: "Department Manager",
-          type: "select",
-          options: userOptions,
+          type: "searchable-select",
+          options: employeeOptions,
         },
         {
           key: "status",

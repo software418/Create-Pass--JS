@@ -2,10 +2,10 @@ import appError_1 from "../../utils/appError.js";
 import { prisma } from "../../config/db.js";
 import * as bcrypt from "bcryptjs";
 
-export const getEmployeeService = async () => {
+export const getEmployeeService = async (user) => {
   return await prisma.employee.findMany({
     where: {
-      status: "active"
+      status: { not: "deleted" }
     }
   });
 };
@@ -64,12 +64,40 @@ export const updateEmployeeService = async (employeeId, data) => {
     }
   });
   if (!exist) throw new appError_1("Employee not found", 404, "NOT_FOUND");
-  return await prisma.employee.update({
+
+  const { password, ...updateData } = data;
+
+  if (updateData.departmentId && !updateData.department) {
+    updateData.department = "Managed via Department ID";
+  }
+
+  const employee = await prisma.employee.update({
     where: {
       id: employeeId
     },
-    data
+    data: updateData
   });
+
+  // Attempt to sync the User model if an email exists
+  if (employee.email) {
+    const userUpdateData = {
+      name: updateData.name,
+      roleId: updateData.roleId,
+      departmentId: updateData.departmentId,
+      assignedLocationId: updateData.assignedLocationId
+    };
+
+    if (password) {
+      userUpdateData.password = await bcrypt.hash(password, 12);
+    }
+
+    await prisma.user.updateMany({
+      where: { email: employee.email },
+      data: userUpdateData
+    });
+  }
+
+  return employee;
 };
 
 export const deleteEmployeeService = async (employeeId) => {

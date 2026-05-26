@@ -108,7 +108,8 @@ export const RoleManagement = () => {
     handleBulkPermissionChange([
       { module, field: 'canRead', value: checked },
       { module, field: 'canCreate', value: checked },
-      { module, field: 'canUpdate', value: checked }
+      { module, field: 'canUpdate', value: checked },
+      { module, field: 'canDelete', value: checked }
     ]);
   };
 
@@ -119,12 +120,14 @@ export const RoleManagement = () => {
         updates.push({ module, field: 'canRead', value: checked });
         updates.push({ module, field: 'canCreate', value: checked });
         updates.push({ module, field: 'canUpdate', value: checked });
+        updates.push({ module, field: 'canDelete', value: checked });
       });
     } else if (category === 'system') {
       systemSettingsModules.forEach(module => {
         updates.push({ module, field: 'canRead', value: checked });
         updates.push({ module, field: 'canCreate', value: checked });
         updates.push({ module, field: 'canUpdate', value: checked });
+        updates.push({ module, field: 'canDelete', value: checked });
       });
     } else if (category === 'dashboard') {
       dashboardModules.forEach(module => {
@@ -213,7 +216,7 @@ export const RoleManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {masterDataModules.map(module => {
                   const p = permissions.find(x => x.module === module) || {};
-                  const allChecked = p.canRead && p.canCreate && p.canUpdate;
+                  const allChecked = p.canRead && p.canCreate && p.canUpdate && p.canDelete;
                   return (
                     <div key={module} className="border rounded-lg bg-gray-50 p-4 flex justify-between items-center">
                       <span className="font-medium text-gray-800">{module}</span>
@@ -229,6 +232,9 @@ export const RoleManagement = () => {
                         </label>
                         <label className="flex items-center gap-1 cursor-pointer">
                           <input type="checkbox" checked={!!p.canUpdate} onChange={(e) => handlePermissionChange(module, 'canUpdate', e.target.checked)} className="text-blue-600" /> Update
+                        </label>
+                        <label className="flex items-center gap-1 cursor-pointer">
+                          <input type="checkbox" checked={!!p.canDelete} onChange={(e) => handlePermissionChange(module, 'canDelete', e.target.checked)} className="text-blue-600" /> Delete
                         </label>
                       </div>
                     </div>
@@ -248,7 +254,7 @@ export const RoleManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {systemSettingsModules.map(module => {
                   const p = permissions.find(x => x.module === module) || {};
-                  const allChecked = p.canRead && p.canCreate && p.canUpdate;
+                  const allChecked = p.canRead && p.canCreate && p.canUpdate && p.canDelete;
                   return (
                     <div key={module} className="border rounded-lg bg-gray-50 p-4 flex justify-between items-center">
                       <span className="font-medium text-gray-800">{module === "CompanyRegister" ? "Company Info" : module}</span>
@@ -264,6 +270,9 @@ export const RoleManagement = () => {
                         </label>
                         <label className="flex items-center gap-1 cursor-pointer">
                           <input type="checkbox" checked={!!p.canUpdate} onChange={(e) => handlePermissionChange(module, 'canUpdate', e.target.checked)} className="text-blue-600" /> Update
+                        </label>
+                        <label className="flex items-center gap-1 cursor-pointer">
+                          <input type="checkbox" checked={!!p.canDelete} onChange={(e) => handlePermissionChange(module, 'canDelete', e.target.checked)} className="text-blue-600" /> Delete
                         </label>
                       </div>
                     </div>

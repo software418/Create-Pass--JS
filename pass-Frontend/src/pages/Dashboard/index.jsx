@@ -395,9 +395,9 @@ export default function DashbordPage() {
                       "Email-Id",
                     ]}
                     data={dashboardState.requestPassData}
-                    actionLabel="Create Pass"
+                    actionLabel={canCreatePass ? "Create Pass" : undefined}
                     actionButtonColor="#f59e0b"
-                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=review-request`)}
+                    onAction={canCreatePass ? (row) => navigate(`/pass/${row.id}/action?mode=review-request`) : undefined}
                   />
                 )}
 
@@ -414,9 +414,9 @@ export default function DashbordPage() {
                       "Email-Id",
                     ]}
                     data={dashboardState.pendingApprovalPassData}
-                    actionLabel="Review & Approve"
+                    actionLabel={canApprovePass ? "Review & Approve" : undefined}
                     actionButtonColor="#0f766e"
-                    onAction={(row) => navigate(`/pass/${row.id}/action?mode=approve`)}
+                    onAction={canApprovePass ? (row) => navigate(`/pass/${row.id}/action?mode=approve`) : undefined}
                   />
                 )}
 

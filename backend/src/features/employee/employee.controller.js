@@ -4,7 +4,7 @@ import logger from "../../utils/logger.utils.js";
 export const getEmployee = async (req, res, next) => {
   try {
     logger.info("[CONTROLLER]{employee.controller} getEmployee → request received");
-    const employees = await employeeService.getEmployeeService();
+    const employees = await employeeService.getEmployeeService(req.user);
     res.status(200).json({
       success: true,
       message: "Employees fetched successfully",
