@@ -114,10 +114,10 @@ export default function ReportsPage({ mode = "generate" }) {
   // Set default dates and auto-fetch on mount / tab change
   useEffect(() => {
     if (mode === "generate") {
-      const { start, end } = getPresetDates("Last Month");
+      const { start, end } = getPresetDates("Last 7 Days");
       setStartDate(start);
       setEndDate(end);
-      setDatePreset("Last Month");
+      setDatePreset("Last 7 Days");
       fetchPassesData(start, end);
     } else if (mode === "today") {
       const { start, end } = getPresetDates("Today");

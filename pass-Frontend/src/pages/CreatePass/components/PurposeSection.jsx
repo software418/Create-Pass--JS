@@ -37,18 +37,6 @@ export const PurposeSection = ({ formData, handleInputChange, purposes }) => {
               ))}
             </div>
           </FormField>
-
-          <FormField label="No of Person" htmlFor="noOfPerson">
-            <Input
-              type="number"
-              id="noOfPerson"
-              name="noOfPerson"
-              value={formData.noOfPerson}
-              onChange={handleInputChange}
-              placeholder="Enter number"
-              min="1"
-            />
-          </FormField>
         </div>
       </div>
 

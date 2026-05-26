@@ -42,7 +42,6 @@ const INITIAL_FORM_DATA = {
   idNumber: "",
   description: "",
   maskCovid: "",
-  noOfPerson: "",
   persons: [{ name: "", phoneNo: "", aadharNumber: "", aadharFile: null }],
   visitArea: [],
   purpose: "",
@@ -111,6 +110,36 @@ const CreatePassPage = () => {
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validations
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.emailId && !emailRegex.test(formData.emailId)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(formData.mobileNo)) {
+      alert("Please enter a valid 10-digit Indian phone number.");
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.passDate < today) {
+      alert("Pass date cannot be in the past.");
+      return;
+    }
+    if (formData.gatePassType === "multi") {
+      if (formData.from < today || formData.to < today) {
+        alert("From and To dates cannot be in the past.");
+        return;
+      }
+      if (formData.to < formData.from) {
+        alert("To date cannot be earlier than From date.");
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       // 1. Capture photo
@@ -142,7 +171,6 @@ const CreatePassPage = () => {
         "idNumber",
         "description",
         "maskCovid",
-        "noOfPerson",
         "purpose",
         "allowedHours",
       ];

@@ -86,14 +86,52 @@ export const Timeline = ({ passData }) => {
         />
 
         {passData.status === "Rejected" ? (
-          <TimelineNode
-            title="Rejected"
-            time={passData.rejectedAt ? new Date(passData.rejectedAt).toLocaleString() : "-"}
-            desc={`Rejected by: ${passData.rejectedBy || "Admin"}`}
-            subDesc={`Reason: "${passData.rejectionReason || "No reason provided"}"`}
-            active={true}
-            isError={true}
-          />
+          <>
+            <TimelineNode
+              title="Rejected"
+              time={passData.rejectedAt ? new Date(passData.rejectedAt).toLocaleString() : "-"}
+              desc={`Rejected by: ${passData.rejectedBy || "Admin"}`}
+              subDesc={`Reason: "${passData.rejectionReason || "No reason provided"}"`}
+              active={true}
+              isError={true}
+            />
+            <TimelineNode
+              title="Checked-In"
+              desc="Not checked in (Pass is Rejected)"
+              active={false}
+            />
+            <TimelineNode
+              title="Checked-Out"
+              desc="Not checked out"
+              active={false}
+            />
+          </>
+        ) : passData.status === "Expired" ? (
+          <>
+            <TimelineNode
+              title="Approved"
+              time={passData.approvedAt ? new Date(passData.approvedAt).toLocaleString() : "-"}
+              desc={passData.approvedAt ? `Approved by: ${passData.approvedBy || "Admin"}` : "Awaiting approval"}
+              active={!!passData.approvedAt}
+            />
+            <TimelineNode
+              title="Expired"
+              time={passData.to ? new Date(passData.to).toLocaleDateString() : new Date(passData.passDate).toLocaleDateString()}
+              desc="Pass expired due to past validity date without check-in."
+              active={true}
+              isError={true}
+            />
+            <TimelineNode
+              title="Checked-In"
+              desc="Not checked in (Pass has Expired)"
+              active={false}
+            />
+            <TimelineNode
+              title="Checked-Out"
+              desc="Not checked out"
+              active={false}
+            />
+          </>
         ) : (
           <>
             <TimelineNode

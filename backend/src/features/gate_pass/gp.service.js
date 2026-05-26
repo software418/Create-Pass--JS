@@ -1,12 +1,4 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    "default": mod
-  };
-};
+import { UPLOAD_DIR } from "../../config/uploads.js";
 import fs_1 from "fs";
 import path_1 from "path";
 import logger_utils_1 from "../../utils/logger.utils.js";
@@ -32,7 +24,7 @@ const generateGatePassId = async () => {
 
 const processForm = async (data, file, aadharFiles) => {
   try {
-    const uploadDir = path_1.join(__dirname, "../../uploads");
+    const uploadDir = UPLOAD_DIR;
     if (!fs_1.existsSync(uploadDir)) {
       fs_1.mkdirSync(uploadDir, {
         recursive: true
@@ -105,7 +97,7 @@ const processForm = async (data, file, aadharFiles) => {
         idNumber: data.idNumber,
         description: data.description,
         maskCovid: data.maskCovid || "",
-        noOfPerson: Number(data.noOfPerson) || 0,
+        noOfPerson: 1 + personsWithFileUrls.length,
         visitArea: visitArea,
         purpose: data.purpose,
         allowedHours: data.allowedHours,
@@ -136,6 +128,28 @@ const processForm = async (data, file, aadharFiles) => {
   }
 };
 
+const resolveDynamicStatus = (pass) => {
+  if (!pass) return null;
+  if (pass.status === 'Checked-In' || pass.status === 'Checked-Out') {
+    return pass.status;
+  }
+  const todayStr = new Date().toISOString().split('T')[0];
+  const formatDate = (date) => {
+    if (!date) return '';
+    return new Date(date).toISOString().split('T')[0];
+  };
+  const passDateStr = formatDate(pass.passDate);
+  const expDateStr = pass.to ? formatDate(pass.to) : passDateStr;
+
+  let isExpired = false;
+  if (pass.gatePassType === 'single') {
+    isExpired = todayStr > passDateStr;
+  } else {
+    isExpired = todayStr > expDateStr;
+  }
+  return isExpired ? 'Expired' : pass.status;
+};
+
 const getPassesService = async (filters = {}) => {
   try {
     const passes = await prisma.formData.findMany({
@@ -147,7 +161,10 @@ const getPassesService = async (filters = {}) => {
         createdAt: 'desc'
       }
     });
-    return passes;
+    return passes.map(p => ({
+      ...p,
+      status: resolveDynamicStatus(p)
+    }));
   } catch (err) {
     logger_utils_1.error(`getPassesService error: ${err.message}`);
     throw new Error(err.message);
@@ -183,9 +200,46 @@ const updatePassStatusService = async (idOrCode, status, updateData = {}) => {
       dataToUpdate.rejectedAt = new Date();
       dataToUpdate.rejectionReason = updateData.rejectionReason || "No reason specified";
     } else if (status === "Checked-In") {
+      // Check if pass is expired based on dynamic status
+      if (resolveDynamicStatus(pass) === "Expired") {
+        throw new Error("Cannot check in. Pass has expired.");
+      }
+      if (pass.status === "Checked-In") {
+        throw new Error("Cannot check in. Pass is already checked in.");
+      }
+      if (pass.status === "Checked-Out") {
+        throw new Error("Cannot check in. Pass has already checked out.");
+      }
+      if (pass.status !== "Approved") {
+        throw new Error(`Cannot check in. Pass is not Approved (current status is: ${pass.status}).`);
+      }
+
+      const today = new Date().toISOString().split("T")[0];
+      const passDateStr = pass.passDate.toISOString().split("T")[0];
+      
+      if (pass.gatePassType === "single") {
+        if (today < passDateStr) {
+          throw new Error(`Cannot check in today. Pass is valid for a future date: ${passDateStr}`);
+        } else if (today > passDateStr) {
+          throw new Error(`Cannot check in. Pass expired on: ${passDateStr}`);
+        }
+      } else {
+        const fromDateStr = pass.from ? pass.from.toISOString().split("T")[0] : passDateStr;
+        const toDateStr = pass.to ? pass.to.toISOString().split("T")[0] : passDateStr;
+        
+        if (today < fromDateStr) {
+          throw new Error(`Cannot check in today. Pass is valid from: ${fromDateStr}`);
+        } else if (today > toDateStr) {
+          throw new Error(`Cannot check in. Pass expired on: ${toDateStr}`);
+        }
+      }
+
       dataToUpdate.checkedInBy = updateData.checkedInBy || "Security";
       dataToUpdate.checkedInAt = new Date();
     } else if (status === "Checked-Out") {
+      if (pass.status !== "Checked-In") {
+        throw new Error(`Cannot check out. Pass is not Checked-In (current status is: ${pass.status}).`);
+      }
       dataToUpdate.checkedOutBy = updateData.checkedOutBy || "Security";
       dataToUpdate.checkedOutAt = new Date();
     }
@@ -220,6 +274,9 @@ const getPassByIdService = async (idOrCode) => {
         persons: true
       }
     });
+    if (pass) {
+      pass.status = resolveDynamicStatus(pass);
+    }
     return pass;
   } catch (err) {
     logger_utils_1.error(`getPassByIdService error: ${err.message}`);
@@ -259,21 +316,39 @@ const getDashboardDataService = async () => {
       return new Date(date).toLocaleString();
     };
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const mappedPasses = passes.map(p => {
       const passTypeLabel = p.gatePassType === 'single' ? 'Single' : 'Multi Day';
+      const formattedPassDate = formatDate(p.passDate);
+      const formattedExpDate = p.to ? formatDate(p.to) : formatDate(p.passDate);
+
+      // Determine if expired dynamically
+      let isExpired = false;
+      if (p.status !== 'Checked-In' && p.status !== 'Checked-Out') {
+        if (p.gatePassType === 'single') {
+          isExpired = todayStr > formattedPassDate;
+        } else {
+          isExpired = todayStr > formattedExpDate;
+        }
+      }
+
+      const resolvedStatus = isExpired ? 'Expired' : p.status;
+
       return {
         ...p,
         pass: passTypeLabel,
         id: p.id,
-        gate_pass_id: p.gatePassId || p.id.substring(0, 8),
-        pass_date: formatDate(p.passDate),
-        date: formatDate(p.passDate),
+        gate_pass_id: p.gatePassId || '-',
+        pass_date: formattedPassDate,
+        date: formattedPassDate,
         timer: p.allowedHours ? `${p.allowedHours} hrs` : '-',
         name: p.name,
         employee: resolveEmployeeName(p.toMeetWith),
         mobile_no: p.mobileNo,
         'email-id': p.emailId,
-        exp_date: p.to ? formatDate(p.to) : '-',
+        exp_date: formattedExpDate,
+        status: resolvedStatus,
         approved_by: p.approvedBy || '-',
         approved_at: formatDateTime(p.approvedAt),
         rejected_by: p.rejectedBy || '-',
@@ -292,16 +367,17 @@ const getDashboardDataService = async () => {
     const totalCompaniesGuest = mappedPasses.length;
     
     // Count today's guests (passDate is today)
-    const todayStr = new Date().toISOString().split('T')[0];
     const todaysGuest = mappedPasses.filter(p => p.pass_date === todayStr).length;
 
-    // Filter by statuses exactly according to 6 categories
+    // Filter by statuses exactly according to categories
     const requestPassData = mappedPasses.filter(p => p.status === 'Requested');
     const pendingApprovalPassData = mappedPasses.filter(p => p.status === 'Pending');
     const approvedPassData = mappedPasses.filter(p => p.status === 'Approved');
     const insidePassData = mappedPasses.filter(p => p.status === 'Checked-In');
-    const multiDayPassData = mappedPasses.filter(p => p.gatePassType === 'multi');
+    const multiDayPassData = mappedPasses.filter(p => p.gatePassType === 'multi' && p.status !== 'Expired');
     const exitApprovedPassData = mappedPasses.filter(p => p.status === 'Checked-Out');
+    const expiredPassData = mappedPasses.filter(p => p.status === 'Expired');
+    const rejectedPassData = mappedPasses.filter(p => p.status === 'Rejected');
 
     return {
       stats: {
@@ -313,7 +389,9 @@ const getDashboardDataService = async () => {
       approvedPassData,
       insidePassData,
       multiDayPassData,
-      exitApprovedPassData
+      exitApprovedPassData,
+      expiredPassData,
+      rejectedPassData
     };
   } catch (err) {
     logger_utils_1.error(`getDashboardDataService error: ${err.message}`);

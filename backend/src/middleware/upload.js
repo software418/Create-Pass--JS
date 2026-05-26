@@ -1,16 +1,8 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-var __importDefault = this && this.__importDefault || function (mod) {
-  return mod && mod.__esModule ? mod : {
-    default: mod
-  };
-};
+import { UPLOAD_DIR } from "../config/uploads.js";
 import multer_1 from "multer";
 import path_1 from "path";
 import fs_1 from "fs"; // Ensure the directory exists
-const uploadDir = path_1.join(__dirname, "../../uploads");
+const uploadDir = UPLOAD_DIR;
 if (!fs_1.existsSync(uploadDir)) {
   fs_1.mkdirSync(uploadDir, {
     recursive: true

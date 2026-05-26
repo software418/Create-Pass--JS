@@ -12,6 +12,7 @@ import logger_utils_1 from "./utils/logger.utils.js";
 import errorHandler_1 from "./middleware/errorHandler.js"; // import authRoutes from "./features/auth/auth.routes";
 import gp_routes_1 from "./features/gate_pass/gp.routes.js";
 import master_routes_1 from "./features/master/master.routes.js";
+import report_routes_1 from "./features/report/report.routes.js";
 const app = (0, express_1)();
 // 1. GLOBAL MIDDLEWARES
 // Set security HTTP headers
@@ -44,6 +45,12 @@ logger_utils_1.info(`Routing requested`);
 // app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/capture", gp_routes_1);
 app.use("/api/v1/master", master_routes_1);
+app.use("/api/v1/report", report_routes_1);
+
+// Initialize Cron Job
+import { initCronJob } from "./utils/cron.js";
+initCronJob();
+
 // 3. ERROR HANDLING MIDDLEWARE
 app.use(errorHandler_1);
 export default app;

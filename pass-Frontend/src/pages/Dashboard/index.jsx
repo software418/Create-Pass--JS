@@ -17,6 +17,8 @@ export default function DashbordPage() {
     insidePassData: [],
     exitApprovedPassData: [],
     pendingApprovalPassData: [],
+    expiredPassData: [],
+    rejectedPassData: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -363,7 +365,7 @@ export default function DashbordPage() {
                   onAction={(row) => navigate(`/pass/${row.id}/action?mode=review-request`)}
                 />
 
-                <DashboardTable
+                 <DashboardTable
                   title="Pending Approval Passes"
                   columns={[
                     "PASS",
@@ -378,6 +380,25 @@ export default function DashbordPage() {
                   actionLabel="Review & Approve"
                   actionButtonColor="#0f766e"
                   onAction={(row) => navigate(`/pass/${row.id}/action?mode=approve`)}
+                />
+
+                <DashboardTable
+                  title="Rejected Passes"
+                  columns={[
+                    "PASS",
+                    "GATE PASS ID",
+                    "Pass Date",
+                    "Name",
+                    "Employee",
+                    "Mobile No",
+                    "Rejected By",
+                    "Rejection Reason",
+                    "Status",
+                  ]}
+                  data={dashboardState.rejectedPassData}
+                  actionLabel="View Details"
+                  actionButtonColor="#475569"
+                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
                 />
 
                 <DashboardTable
@@ -439,6 +460,23 @@ export default function DashbordPage() {
                   onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
                   showPrintAction={true}
                   onPrint={(row) => handlePrintTrigger(row)}
+                />
+
+                <DashboardTable
+                  title="Expired Passes (Past Date)"
+                  columns={[
+                    "PASS",
+                    "GATE PASS ID",
+                    "Pass Date",
+                    "Name",
+                    "Employee",
+                    "Mobile No",
+                    "Status",
+                  ]}
+                  data={dashboardState.expiredPassData}
+                  actionLabel="View Details"
+                  actionButtonColor="#475569"
+                  onAction={(row) => navigate(`/pass/${row.id}/action?mode=view`)}
                 />
               </div>
             )}

@@ -171,6 +171,32 @@ export const CompanyRegisterPage = () => {
               onChange={onChange("emailPassword")}
             />
           </div>
+
+          <div className="company-reg-field">
+            <label className="company-reg-label" htmlFor="startTime">
+              START TIME (e.g. 09:00)
+            </label>
+            <UnderlineInput
+              id="startTime"
+              name="startTime"
+              type="time"
+              value={form.startTime}
+              onChange={onChange("startTime")}
+            />
+          </div>
+
+          <div className="company-reg-field">
+            <label className="company-reg-label" htmlFor="endTime">
+              END TIME (e.g. 19:00)
+            </label>
+            <UnderlineInput
+              id="endTime"
+              name="endTime"
+              type="time"
+              value={form.endTime}
+              onChange={onChange("endTime")}
+            />
+          </div>
         </div>
 
         <div className="company-reg-actions">

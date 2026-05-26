@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { queryGet } from "@/shared/services/api";
 import { useEmployees } from "@/features/employee/useEmployee";
 import { Printer, Search, Loader, ShieldAlert, ArrowLeft, Building, User, MapPin } from "lucide-react";
+import { GatePassTemplate } from "@/shared/ui/GatePassTemplate";
 
 // Default print configuration
 const DEFAULT_PRINT_SETTINGS = {
@@ -25,12 +26,7 @@ const DEFAULT_PRINT_SETTINGS = {
   bottomInstructions: "1. Please wear this badge visibly at all times within the facility.\n2. This pass is non-transferable and valid only for authorized areas.\n3. Return this pass to the security desk upon check-out.\n4. In case of emergency, follow instructions of safety wardens.",
 };
 
-const THEME_COLORS = {
-  dark: { primary: "#000000", secondary: "#374151", bgLight: "#f3f4f6", text: "#000000" },
-  teal: { primary: "#0f766e", secondary: "#134e4a", bgLight: "#f0fdfa", text: "#0f766e" },
-  blue: { primary: "#1e3a8a", secondary: "#1e40af", bgLight: "#f0f9ff", text: "#1e3a8a" },
-  emerald: { primary: "#064e3b", secondary: "#065f46", bgLight: "#f0fdf4", text: "#064e3b" },
-};
+
 
 export default function PrintPassByIdPage() {
   const [searchId, setSearchId] = useState("");
@@ -86,63 +82,8 @@ export default function PrintPassByIdPage() {
     window.print();
   };
 
-  const activeColor = THEME_COLORS[printSettings.colorTheme] || THEME_COLORS.teal;
-  const backendHost = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1").replace("/api/v1", "");
-  const photoUrl = passData?.photoUrl ? `${backendHost}${passData.photoUrl}` : "";
-
-  // Render pass depending on chosen settings
-  const getPassStyle = () => {
-    const isThermal = printSettings.paperSize === "Thermal";
-    const isA4 = printSettings.paperSize === "A4";
-
-    return {
-      width: isThermal ? "300px" : isA4 ? "100%" : "440px",
-      minHeight: isThermal ? "450px" : isA4 ? "320px" : "280px",
-      border: printSettings.showBorders ? "2px solid #000000" : "1px solid #000000",
-      borderRadius: isThermal ? "0" : isA4 ? "4px" : "4px",
-      backgroundColor: "#ffffff",
-      padding: isThermal ? "1rem 0.75rem" : "1.5rem",
-      boxShadow: "none",
-      boxSizing: "border-box",
-      fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-      position: "relative",
-      display: "flex",
-      flexDirection: "column",
-      gap: "1rem",
-      color: "#000000",
-    };
-  };
-
   return (
     <div style={{ padding: "0 1.5rem 4rem 1.5rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-      {/* Styles for direct print filtering */}
-      <style>{`
-        @media print {
-          /* Hide everything except the specific printed container */
-          body * {
-            visibility: hidden;
-            background-color: transparent !important;
-            box-shadow: none !important;
-          }
-          
-          #printable-gatepass-frame, #printable-gatepass-frame * {
-            visibility: visible;
-          }
-          
-          #printable-gatepass-frame {
-            position: absolute;
-            left: 50%;
-            top: 50px;
-            transform: translateX(-50%);
-            width: ${printSettings.paperSize === 'Thermal' ? '300px' : printSettings.paperSize === 'A4' ? '100%' : '440px'} !important;
-            border: ${printSettings.showBorders ? `3px solid ${activeColor.primary}` : '1px solid #000000'} !important;
-            box-shadow: none !important;
-            padding: 2rem !important;
-            margin: 0 !important;
-          }
-        }
-      `}</style>
-
       {/* Header Panel */}
       <div style={{ marginBottom: "2rem" }}>
         <h1
@@ -157,7 +98,7 @@ export default function PrintPassByIdPage() {
             letterSpacing: "-0.025em",
           }}
         >
-          <Printer style={{ color: activeColor.primary }} />
+          <Printer style={{ color: "#000000" }} />
           Print Gate Pass by ID
         </h1>
         <p style={{ color: "#64748b", fontSize: "0.9rem", margin: "0.35rem 0 0 0", fontWeight: "500" }}>
@@ -232,7 +173,7 @@ export default function PrintPassByIdPage() {
               height: "2.75rem",
               padding: "0 1.5rem",
               borderRadius: "0.375rem",
-              backgroundColor: !searchId.trim() ? "#cbd5e1" : activeColor.primary,
+              backgroundColor: !searchId.trim() ? "#cbd5e1" : "#000000",
               color: "#ffffff",
               border: "none",
               fontSize: "0.9rem",
@@ -259,7 +200,7 @@ export default function PrintPassByIdPage() {
               width: "3rem",
               height: "3rem",
               border: "4px solid #e2e8f0",
-              borderTopColor: activeColor.primary,
+              borderTopColor: "#000000",
               borderRadius: "50%",
               animation: "spin 1s linear infinite",
             }}
@@ -304,237 +245,7 @@ export default function PrintPassByIdPage() {
               boxSizing: "border-box",
             }}
           >
-            {/* The printable frame container */}
-            <div id="printable-gatepass-frame" style={getPassStyle()}>
-              
-              {/* Header */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  borderBottom: "2px solid #000000",
-                  paddingBottom: "0.5rem",
-                  marginBottom: "0.75rem",
-                  textAlign: "center",
-                }}
-              >
-                <h2 style={{ margin: 0, fontSize: "1.35rem", fontWeight: "900", color: "#000000", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                  {passData.companyName ? passData.companyName.toUpperCase() : "FACILITY ACCESS"}
-                </h2>
-                <div style={{ fontSize: "0.7rem", color: "#1f2937", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.2em", marginTop: "1px" }}>
-                  VISITOR GATE PASS
-                </div>
-                {printSettings.showPassType && (
-                  <span
-                    style={{
-                      fontSize: "0.6rem",
-                      fontWeight: "900",
-                      border: "1.5px solid #000000",
-                      backgroundColor: "#000000",
-                      color: "#ffffff",
-                      padding: "0.1rem 0.5rem",
-                      borderRadius: "2px",
-                      textTransform: "uppercase",
-                      marginTop: "0.35rem",
-                      letterSpacing: "0.05em"
-                    }}
-                  >
-                    {passData.gatePassType === "single" ? "Single Day Pass" : "Multi Day Pass"}
-                  </span>
-                )}
-              </div>
-
-              {/* Body Content */}
-              <div style={{ display: "flex", gap: "1rem", flex: 1, flexDirection: "row" }}>
-                
-                {/* Photo & QR verification side panel */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.75rem", width: "110px", flexShrink: 0 }}>
-                  
-                  {/* Visitor Photo */}
-                  {printSettings.showPhoto && (
-                    <div
-                      style={{
-                        width: "100px",
-                        height: "115px",
-                        border: "1.5px solid #000000",
-                        backgroundColor: "#ffffff",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {photoUrl ? (
-                        <img src={photoUrl} alt="Visitor" style={{ width: "100%", height: "100%", objectFit: "cover", filter: "grayscale(100%) contrast(1.1)" }} />
-                      ) : (
-                        <div style={{ textAlign: "center", color: "#000000", fontSize: "0.6rem", fontWeight: "700" }}>
-                          <span style={{ fontSize: "1.5rem", display: "block" }}>👤</span>
-                          NO PHOTO
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* High Contrast Monochrome QR code Verification Box */}
-                  <div style={{
-                    width: "100px",
-                    height: "100px",
-                    border: "1px solid #000000",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: "#ffffff",
-                    padding: "0.25rem",
-                    boxSizing: "border-box"
-                  }}>
-                    <svg width="60" height="60" viewBox="0 0 29 29" style={{ shapeRendering: "crispEdges" }}>
-                      <path fill="#000000" d="M0 0h9v9H0zm1 1v7h7V1zm8 0h1v1H9zm1 1h1v1h-1zm-1 1h1v1H9zm1 1h1v1h-1zm2-4h9v9h-9zm1 1v7h7V1zm-4 7h1v1H9zm1 0h1v1h-1zm-1 1h1v1H9zm3-1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm-5 2h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm3 0h1v1h-1zm-8 1h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 1h1v1h-1zm2-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 0h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm0 2h9v9h-9zm1 1v7h7V13zm-10 2h1v1h-1zm1 1h1v1h-1zm-1 1h1v1H9zm1 1h1v1h-1zm2-3h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm3 0h1v1h-1zm-8 1h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 1h1v1h-1zm2-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 0h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm2-2h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm3 0h1v1h-1zm-8 1h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 1h1v1h-1zm2-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 0h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm0 2h9v9h-9zm1 1v7h7v-7zm-10 2h1v1h-1zm1 1h1v1h-1zm-1 1h1v1H9zm1 1h1v1h-1zm2-3h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm2 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm3 0h1v1h-1zm-8 1h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 1h1v1h-1zm2-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm-9 2h1v1H9zm1 1h1v1h-1zm1-1h1v1h-1zm3 0h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1zm1 1h1v1h-1zm1-1h1v1h-1z" />
-                    </svg>
-                    <span style={{ fontSize: "0.45rem", fontWeight: "800", marginTop: "2px", color: "#000000", letterSpacing: "0.05em" }}>VERIFIED</span>
-                  </div>
-                </div>
-
-                {/* Details list as formal ledger */}
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.15rem" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.75rem", color: "#000000", border: "1px solid #000000" }}>
-                    <tbody>
-                      {printSettings.showGatePassId && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", width: "100px", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>PASS ID</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "900", fontSize: "0.8rem", letterSpacing: "0.025em" }}>{passData.gatePassId || "-"}</td>
-                        </tr>
-                      )}
-                      {printSettings.showName && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>VISITOR</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "900", fontSize: "0.8rem" }}>{passData.name ? passData.name.toUpperCase() : "-"}</td>
-                        </tr>
-                      )}
-                      {printSettings.showCompanyName && passData.companyName && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>REPRESENTING</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800" }}>{passData.companyName.toUpperCase()}</td>
-                        </tr>
-                      )}
-                      {printSettings.showEmployee && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>HOST</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800" }}>{getEmployeeName(passData.toMeetWith).toUpperCase()}</td>
-                        </tr>
-                      )}
-                      {printSettings.showVisitArea && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>ALLOWED AREAS</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "900", color: "#000000" }}>
-                            {Array.isArray(passData.visitArea) ? passData.visitArea.join(", ").toUpperCase() : passData.visitArea ? passData.visitArea.toUpperCase() : "N/A"}
-                          </td>
-                        </tr>
-                      )}
-                      {printSettings.showPurpose && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>PURPOSE</td>
-                          <td style={{ padding: "0.35rem 0.5rem" }}>{passData.purpose || "General Meeting"}</td>
-                        </tr>
-                      )}
-                      {printSettings.showMobileNo && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>MOBILE NO</td>
-                          <td style={{ padding: "0.35rem 0.5rem" }}>{passData.mobileNo || "-"}</td>
-                        </tr>
-                      )}
-                      {printSettings.showPassDate && (
-                        <tr style={{ borderBottom: "1px solid #000000" }}>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>DATE / TIME</td>
-                          <td style={{ padding: "0.35rem 0.5rem" }}>
-                            {new Date(passData.createdAt).toLocaleString()}
-                          </td>
-                        </tr>
-                      )}
-                      {printSettings.showAllowedHours && passData.allowedHours && (
-                        <tr>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "800", textTransform: "uppercase", fontSize: "0.6rem", borderRight: "1px solid #000000", backgroundColor: "#f3f4f6" }}>VALID LIMIT</td>
-                          <td style={{ padding: "0.35rem 0.5rem", fontWeight: "900" }}>{passData.allowedHours} HOURS ONLY</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Accompanying Persons Table */}
-              {printSettings.showAccompanyingPersons && passData.persons && passData.persons.length > 0 && (
-                <div style={{ border: "1.5px solid #000000", padding: "0.5rem", fontSize: "0.7rem", marginTop: "0.5rem", backgroundColor: "#ffffff" }}>
-                  <div style={{ fontWeight: "900", color: "#000000", marginBottom: "0.25rem", textTransform: "uppercase", fontSize: "0.6rem", letterSpacing: "0.05em" }}>
-                    Accompanying Persons ({passData.persons.length} Total)
-                  </div>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                    <thead>
-                      <tr style={{ borderBottom: "1.5px solid #000000", color: "#000000", textAlign: "left" }}>
-                        <th style={{ padding: "0.15rem 0", fontSize: "0.55rem", fontWeight: "800" }}>NAME</th>
-                        <th style={{ padding: "0.15rem 0", fontSize: "0.55rem", fontWeight: "800" }}>CONTACT</th>
-                        <th style={{ padding: "0.15rem 0", fontSize: "0.55rem", fontWeight: "800" }}>GOVT ID NO</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {passData.persons.map((person, index) => (
-                        <tr key={person.id || index} style={{ borderBottom: index < passData.persons.length - 1 ? "1px dashed #cbd5e1" : "none" }}>
-                          <td style={{ padding: "0.2rem 0", fontWeight: "700" }}>{person.name}</td>
-                          <td style={{ padding: "0.2rem 0" }}>{person.phoneNo || "-"}</td>
-                          <td style={{ padding: "0.2rem 0" }}>{person.aadharNumber || "-"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Authorized Signatures Section (Highly Standard Corporate) */}
-              <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: "1.25rem",
-                paddingTop: "0.75rem",
-                borderTop: "1.5px dashed #000000"
-              }}>
-                <div style={{ textAlign: "center", width: "45%" }}>
-                  <div style={{ borderBottom: "1px solid #000000", width: "100%", height: "20px" }}></div>
-                  <span style={{ fontSize: "0.55rem", fontWeight: "800", textTransform: "uppercase", marginTop: "3px", display: "block", color: "#000000" }}>
-                    Visitor Signature
-                  </span>
-                </div>
-                <div style={{ textAlign: "center", width: "45%" }}>
-                  <div style={{ borderBottom: "1px solid #000000", width: "100%", height: "20px" }}></div>
-                  <span style={{ fontSize: "0.55rem", fontWeight: "800", textTransform: "uppercase", marginTop: "3px", display: "block", color: "#000000" }}>
-                    Security Officer / Sign
-                  </span>
-                </div>
-              </div>
-
-              {/* Custom Bottom Instructions */}
-              {printSettings.bottomInstructions && (
-                <div
-                  style={{
-                    borderTop: "1px dashed #000000",
-                    paddingTop: "0.5rem",
-                    marginTop: "0.75rem",
-                    fontSize: "0.6rem",
-                    lineHeight: "1.4",
-                    color: "#000000",
-                  }}
-                >
-                  <div style={{ fontWeight: "900", fontSize: "0.55rem", textTransform: "uppercase", color: "#000000", marginBottom: "0.15rem", letterSpacing: "0.05em" }}>
-                    Security Access Terms:
-                  </div>
-                  {printSettings.bottomInstructions.split("\n").map((instruction, idx) => (
-                    <div key={idx} style={{ marginBottom: "0.05rem" }}>{instruction}</div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <GatePassTemplate passData={passData} printSettings={printSettings} getEmployeeName={getEmployeeName} />
           </div>
 
           {/* Right Column: Printing Details and Actions */}
@@ -569,7 +280,7 @@ export default function PrintPassByIdPage() {
                   width: "100%",
                   height: "2.75rem",
                   borderRadius: "0.375rem",
-                  backgroundColor: activeColor.primary,
+                  backgroundColor: "#000000",
                   color: "#ffffff",
                   border: "none",
                   fontWeight: "700",
@@ -596,7 +307,7 @@ export default function PrintPassByIdPage() {
                 lineHeight: "1.4",
               }}
             >
-              🎉 <strong>Print Settings Active:</strong> This pass will be formatted into a <strong>{printSettings.paperSize}</strong> size badge with a <strong>{printSettings.colorTheme}</strong> color theme automatically.
+              🎉 <strong>Print Settings Active:</strong> This pass will be formatted into a <strong>{printSettings.paperSize}</strong> size badge automatically.
             </div>
           </div>
 

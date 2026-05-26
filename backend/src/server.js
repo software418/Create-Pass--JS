@@ -24,7 +24,7 @@ const server = app_1.listen(port, () => {
   logger_utils_1.info(`App running on port ${port}...`);
   console.log(`App running on port ${port}...`);
 });
-app_1.use("/uploads", express_1.static(path_1.join(__dirname, "../../uploads")));
+app_1.use("/uploads", express_1.static(path_1.join(__dirname, "../uploads")));
 process.on("unhandledRejection", err => {
   logger_utils_1.error("UNHANDLED REJECTION! 💥 Shutting down...");
   logger_utils_1.error(err.name, err.message);

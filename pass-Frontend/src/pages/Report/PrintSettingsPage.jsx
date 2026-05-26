@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Sliders, Save, CheckCircle, RotateCcw, Eye, ShieldAlert } from "lucide-react";
+import { GatePassTemplate } from "@/shared/ui/GatePassTemplate";
 
 // Default print configuration
 const DEFAULT_PRINT_SETTINGS = {
@@ -16,18 +17,10 @@ const DEFAULT_PRINT_SETTINGS = {
   showVisitArea: true,
   showPhoto: true,
   showAccompanyingPersons: true,
-  paperSize: "Card", // "Card", "Thermal", "A4"
+  paperSize: "A4", // "Card", "Thermal", "A4"
   orientation: "Portrait", // "Portrait", "Landscape"
-  colorTheme: "teal", // "teal", "blue", "dark", "emerald"
   showBorders: true,
   bottomInstructions: "1. Please wear this badge visibly at all times within the facility.\n2. This pass is non-transferable and valid only for authorized areas.\n3. Return this pass to the security desk upon check-out.\n4. In case of emergency, follow instructions of safety wardens.",
-};
-
-const THEME_COLORS = {
-  teal: { primary: "#0f766e", secondary: "#14b8a6", bgLight: "#f0fdfa", text: "#115e59" },
-  blue: { primary: "#1d4ed8", secondary: "#3b82f6", bgLight: "#eff6ff", text: "#1e40af" },
-  dark: { primary: "#1f2937", secondary: "#4b5563", bgLight: "#f9fafb", text: "#111827" },
-  emerald: { primary: "#065f46", secondary: "#10b981", bgLight: "#ecfdf5", text: "#065f46" },
 };
 
 export default function PrintSettingsPage() {
@@ -93,32 +86,8 @@ export default function PrintSettingsPage() {
     setShowSavedToast(true);
     setTimeout(() => setShowSavedToast(false), 2000);
   };
+  // Render mock pass using the shared Template
 
-  // Live preview mockup details
-  const activeColor = THEME_COLORS[settings.colorTheme] || THEME_COLORS.teal;
-
-  // Render mock pass depending on chosen settings
-  const getMockPassStyle = () => {
-    const isThermal = settings.paperSize === "Thermal";
-    const isA4 = settings.paperSize === "A4";
-
-    return {
-      width: isThermal ? "290px" : isA4 ? "100%" : "400px",
-      minHeight: isThermal ? "400px" : isA4 ? "300px" : "260px",
-      border: settings.showBorders ? `2px solid ${activeColor.primary}` : "1px solid #cbd5e1",
-      borderRadius: isThermal ? "0" : isA4 ? "0.75rem" : "0.5rem",
-      backgroundColor: "#ffffff",
-      padding: isThermal ? "1.25rem 1rem" : "1.5rem",
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
-      boxSizing: "border-box",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      position: "relative",
-      display: "flex",
-      flexDirection: "column",
-      gap: "1rem",
-      color: "#1f2937",
-    };
-  };
 
   return (
     <div style={{ padding: "0 1.5rem 4rem 1.5rem", fontFamily: "system-ui, -apple-system, sans-serif" }}>
@@ -171,7 +140,7 @@ export default function PrintSettingsPage() {
               letterSpacing: "-0.025em",
             }}
           >
-            <Sliders style={{ color: activeColor.primary }} />
+            <Sliders style={{ color: "#000000" }} />
             Print Settings Configuration
           </h1>
           <p style={{ color: "#64748b", fontSize: "0.9rem", margin: "0.35rem 0 0 0", fontWeight: "500" }}>
@@ -205,7 +174,7 @@ export default function PrintSettingsPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: "0.5rem",
-              backgroundColor: activeColor.primary,
+              backgroundColor: "#000000",
               color: "#ffffff",
               border: "none",
               borderRadius: "0.5rem",
@@ -268,33 +237,6 @@ export default function PrintSettingsPage() {
                   <option value="A4">A4 Half-Page Document</option>
                 </select>
               </div>
-
-              <div>
-                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: "700", color: "#64748b", textTransform: "uppercase", marginBottom: "0.35rem" }}>
-                  Color Accent
-                </label>
-                <select
-                  value={settings.colorTheme}
-                  onChange={(e) => handleSelect("colorTheme", e.target.value)}
-                  style={{
-                    width: "100%",
-                    height: "2.5rem",
-                    borderRadius: "0.375rem",
-                    border: "1px solid #cbd5e1",
-                    padding: "0 0.5rem",
-                    fontSize: "0.875rem",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    backgroundColor: "#ffffff",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  <option value="teal">Teal (VMS Classic)</option>
-                  <option value="blue">Royal Blue</option>
-                  <option value="dark">Charcoal Black</option>
-                  <option value="emerald">Forest Green</option>
-                </select>
-              </div>
             </div>
 
             <div style={{ display: "flex", gap: "2rem", marginTop: "1rem" }}>
@@ -303,7 +245,7 @@ export default function PrintSettingsPage() {
                   type="checkbox"
                   checked={settings.showBorders}
                   onChange={() => handleToggle("showBorders")}
-                  style={{ width: "1.1rem", height: "1.1rem", accentColor: activeColor.primary, cursor: "pointer" }}
+                  style={{ width: "1.1rem", height: "1.1rem", accentColor: "#000000", cursor: "pointer" }}
                 />
                 Show Accent Border
               </label>
@@ -313,7 +255,7 @@ export default function PrintSettingsPage() {
                   type="checkbox"
                   checked={settings.orientation === "Landscape"}
                   onChange={() => handleSelect("orientation", settings.orientation === "Portrait" ? "Landscape" : "Portrait")}
-                  style={{ width: "1.1rem", height: "1.1rem", accentColor: activeColor.primary, cursor: "pointer" }}
+                  style={{ width: "1.1rem", height: "1.1rem", accentColor: "#000000", cursor: "pointer" }}
                 />
                 Landscape Mode
               </label>
@@ -351,13 +293,13 @@ export default function PrintSettingsPage() {
                     justifyContent: "space-between",
                     padding: "0.5rem 0.75rem",
                     borderRadius: "0.375rem",
-                    backgroundColor: settings[field.key] ? activeColor.bgLight : "#f8fafc",
-                    border: `1px solid ${settings[field.key] ? activeColor.secondary + "40" : "#e2e8f0"}`,
+                    backgroundColor: settings[field.key] ? "#f3f4f6" : "#f8fafc",
+                    border: `1px solid ${settings[field.key] ? "#d1d5db" : "#e2e8f0"}`,
                     cursor: "pointer",
                     transition: "all 0.15s ease",
                   }}
                 >
-                  <span style={{ fontSize: "0.8rem", fontWeight: "600", color: settings[field.key] ? activeColor.text : "#64748b" }}>
+                  <span style={{ fontSize: "0.8rem", fontWeight: "600", color: settings[field.key] ? "#000000" : "#64748b" }}>
                     {field.label}
                   </span>
                   
@@ -367,7 +309,7 @@ export default function PrintSettingsPage() {
                       width: "1.75rem",
                       height: "0.9rem",
                       borderRadius: "9999px",
-                      backgroundColor: settings[field.key] ? activeColor.primary : "#cbd5e1",
+                      backgroundColor: settings[field.key] ? "#000000" : "#cbd5e1",
                       position: "relative",
                       transition: "background-color 0.2s",
                     }}
@@ -454,7 +396,7 @@ export default function PrintSettingsPage() {
               <div
                 style={{
                   fontSize: "0.7rem",
-                  backgroundColor: activeColor.primary,
+                  backgroundColor: "#000000",
                   color: "#ffffff",
                   padding: "0.15rem 0.5rem",
                   borderRadius: "9999px",
@@ -466,182 +408,30 @@ export default function PrintSettingsPage() {
               </div>
             </div>
 
-            {/* Mock Pass Badge Container */}
-            <div style={getMockPassStyle()}>
-              {/* Header inside mock pass */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  borderBottom: `2px solid ${activeColor.primary}20`,
-                  paddingBottom: "0.5rem",
-                }}
-              >
-                <div>
-                  <h2 style={{ margin: 0, fontSize: "1.1rem", fontWeight: "800", color: activeColor.primary }}>
-                    FACILITY ACCESS PASS
-                  </h2>
-                  <div style={{ fontSize: "0.6rem", color: "#64748b", fontWeight: "600", textTransform: "uppercase" }}>
-                    Visitor Control Center
-                  </div>
-                </div>
-
-                {settings.showPassType && (
-                  <span
-                    style={{
-                      fontSize: "0.65rem",
-                      fontWeight: "800",
-                      backgroundColor: activeColor.bgLight,
-                      color: activeColor.primary,
-                      padding: "0.15rem 0.5rem",
-                      borderRadius: "0.25rem",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    SINGLE DAY
-                  </span>
-                )}
-              </div>
-
-              {/* Main Content inside mock pass */}
-              <div style={{ display: "flex", gap: "1rem", flex: 1, flexDirection: settings.orientation === "Landscape" ? "row" : "column" }}>
-                
-                {/* Photo section */}
-                {settings.showPhoto && (
-                  <div
-                    style={{
-                      width: "80px",
-                      height: "90px",
-                      borderRadius: "0.25rem",
-                      border: `1px solid ${activeColor.primary}30`,
-                      backgroundColor: "#f1f5f9",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "#94a3b8",
-                      fontSize: "0.5rem",
-                      fontWeight: "700",
-                      alignSelf: settings.orientation === "Landscape" ? "flex-start" : "center",
-                    }}
-                  >
-                    {/* Simulated User Avatar */}
-                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#cbd5e1", display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", fontSize: "0.8rem", color: "#fff", fontWeight: "800", marginBottom: "4px" }}>
-                      JD
-                    </div>
-                    PHOTO AREA
-                  </div>
-                )}
-
-                {/* Details Section */}
-                <div style={{ flex: 1, display: "grid", gridTemplateColumns: "1fr", gap: "0.45rem", fontSize: "0.75rem" }}>
-                  
-                  {settings.showGatePassId && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Pass ID:</span>
-                      <strong style={{ marginLeft: "0.25rem", color: activeColor.primary, fontSize: "0.8rem" }}>GP-A7B8C9</strong>
-                    </div>
-                  )}
-
-                  {settings.showName && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Visitor:</span>
-                      <strong style={{ marginLeft: "0.25rem", color: "#0f172a" }}>Jane Doe</strong>
-                    </div>
-                  )}
-
-                  {settings.showMobileNo && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Mobile:</span>
-                      <span style={{ marginLeft: "0.25rem" }}>+1 (555) 019-2834</span>
-                    </div>
-                  )}
-
-                  {settings.showEmailId && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Email:</span>
-                      <span style={{ marginLeft: "0.25rem", textDecoration: "underline" }}>jane.doe@gmail.com</span>
-                    </div>
-                  )}
-
-                  {settings.showCompanyName && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Company:</span>
-                      <strong style={{ marginLeft: "0.25rem", color: "#334155" }}>Google DeepMind</strong>
-                    </div>
-                  )}
-
-                  {settings.showEmployee && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Host Employee:</span>
-                      <strong style={{ marginLeft: "0.25rem", color: "#1e293b" }}>John Smith (IT Dev)</strong>
-                    </div>
-                  )}
-
-                  {settings.showVisitArea && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Allowed Areas:</span>
-                      <span style={{ marginLeft: "0.25rem", color: activeColor.primary, fontWeight: "600" }}>Server Room, Conf Hall A</span>
-                    </div>
-                  )}
-
-                  {settings.showPurpose && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Purpose:</span>
-                      <span style={{ marginLeft: "0.25rem" }}>Technical Integration Meeting</span>
-                    </div>
-                  )}
-
-                  {settings.showAllowedHours && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Allowed Duration:</span>
-                      <span style={{ marginLeft: "0.25rem", backgroundColor: "#fffbeb", border: "1px solid #fef3c7", padding: "0.1rem 0.35rem", borderRadius: "0.25rem", color: "#b45309", fontWeight: "700" }}>8 Hours Limit</span>
-                    </div>
-                  )}
-
-                  {settings.showPassDate && (
-                    <div>
-                      <span style={{ color: "#64748b", fontSize: "0.6rem", fontWeight: "600", textTransform: "uppercase" }}>Issue Date:</span>
-                      <span style={{ marginLeft: "0.25rem" }}>{new Date().toLocaleDateString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Accompanying Table Simulator */}
-              {settings.showAccompanyingPersons && (
-                <div style={{ border: "1px solid #e2e8f0", borderRadius: "0.25rem", padding: "0.35rem", fontSize: "0.65rem", backgroundColor: "#f8fafc" }}>
-                  <div style={{ fontWeight: "700", color: "#475569", marginBottom: "0.15rem", textTransform: "uppercase", fontSize: "0.55rem" }}>
-                    Accompanying Persons (2 Total)
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b" }}>
-                    <span>1. Bob Smith (Mobile: +1...23)</span>
-                    <span>2. Alice Johnson (Mobile: +1...56)</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Bottom Instructions List inside mock pass */}
-              {settings.bottomInstructions && (
-                <div
-                  style={{
-                    borderTop: `1px dashed ${activeColor.primary}30`,
-                    paddingTop: "0.5rem",
-                    fontSize: "0.6rem",
-                    lineHeight: "1.4",
-                    color: "#475569",
-                  }}
-                >
-                  <div style={{ fontWeight: "700", fontSize: "0.55rem", textTransform: "uppercase", color: activeColor.primary, marginBottom: "0.15rem" }}>
-                    Terms & Instructions:
-                  </div>
-                  {settings.bottomInstructions.split("\n").map((instruction, idx) => (
-                    <div key={idx} style={{ marginBottom: "0.05rem" }}>{instruction}</div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <GatePassTemplate 
+              passData={{
+                gatePassId: "GP-A7B8C9",
+                name: "Jane Doe",
+                mobileNo: "+1 (555) 019-2834",
+                emailId: "jane.doe@gmail.com",
+                companyName: "Google DeepMind",
+                toMeetWith: "John Smith (IT Dev)",
+                visitArea: ["Server Room", "Conf Hall A"],
+                purpose: "Technical Integration Meeting",
+                allowedHours: 8,
+                createdAt: new Date().toISOString(),
+                passDate: new Date().toISOString(),
+                status: "Approved",
+                gatePassType: "single",
+                persons: [
+                  { name: "Bob Smith", phoneNo: "+1...23", aadharNumber: "1234" },
+                  { name: "Alice Johnson", phoneNo: "+1...56", aadharNumber: "5678" }
+                ],
+                photoUrl: ""
+              }}
+              printSettings={settings}
+              getEmployeeName={(id) => id}
+            />
           </div>
 
           {/* Quick Notice about browser margins */}

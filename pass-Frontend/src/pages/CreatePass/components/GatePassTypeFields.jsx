@@ -3,6 +3,8 @@ import { FormField } from "@/shared/ui/molecules/FormField";
 import { Input } from "@/shared/ui/atoms/Input";
 
 export const GatePassTypeFields = ({ formData, handleInputChange }) => {
+  const today = new Date().toISOString().split("T")[0];
+  
   return (
     <div className="form-grid-2">
       <FormField label="Gate Pass Type" htmlFor="gatepass-type-single">
@@ -33,6 +35,7 @@ export const GatePassTypeFields = ({ formData, handleInputChange }) => {
           name="passDate"
           value={formData.passDate}
           onChange={handleInputChange}
+          min={today}
         />
       </FormField>
 
@@ -46,6 +49,7 @@ export const GatePassTypeFields = ({ formData, handleInputChange }) => {
               disabled={formData.gatePassType !== "multi"}
               value={formData.from}
               onChange={handleInputChange}
+              min={today}
             />
           </FormField>
           <FormField label="To" htmlFor="to">
@@ -56,6 +60,7 @@ export const GatePassTypeFields = ({ formData, handleInputChange }) => {
               disabled={formData.gatePassType !== "multi"}
               value={formData.to}
               onChange={handleInputChange}
+              min={formData.from || today}
             />
           </FormField>
         </>

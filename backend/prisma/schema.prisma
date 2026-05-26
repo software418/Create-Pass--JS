@@ -67,6 +67,8 @@ model CompanyRegister {
   portNo           Int      @default(0)
   userEmailId      String   @default("")
   emailPassword    String   @default("")
+  startTime        String   @default("09:00")
+  endTime          String   @default("19:00")
   updatedAt        DateTime @updatedAt
 }
 

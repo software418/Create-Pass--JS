@@ -7,6 +7,8 @@ export const BLANK_COMPANY_REGISTER = {
   portNo: "",
   userEmailId: "",
   emailPassword: "",
+  startTime: "09:00",
+  endTime: "19:00",
 };
 
 export function mapRecordToForm(record) {
@@ -23,6 +25,8 @@ export function mapRecordToForm(record) {
         : "",
     userEmailId: record.userEmailId ?? "",
     emailPassword: record.emailPassword ?? "",
+    startTime: record.startTime ?? "09:00",
+    endTime: record.endTime ?? "19:00",
   };
 }
 
@@ -35,6 +39,8 @@ export function buildCompanyRegisterFormData(form, logoFile) {
   fd.append("portNo", form.portNo === "" ? "0" : String(form.portNo));
   fd.append("userEmailId", form.userEmailId.trim());
   fd.append("emailPassword", form.emailPassword);
+  fd.append("startTime", form.startTime);
+  fd.append("endTime", form.endTime);
   if (logoFile) fd.append("logo", logoFile);
   return fd;
 }
