@@ -4,7 +4,7 @@ import logger from "../../utils/logger.utils.js";
 export const getDepartment = async (req, res, next) => {
   try {
     logger.info("[CONTROLLER]{department.controller} getDepartment → request received");
-    const department = await departmentService.getDepartmentService();
+    const department = await departmentService.getDepartmentService(req.user);
     res.status(200).json({
       success: true,
       message: "Department fetched successfully",

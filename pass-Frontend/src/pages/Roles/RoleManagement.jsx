@@ -10,6 +10,7 @@ export const RoleManagement = () => {
   const [editingRole, setEditingRole] = useState(null);
 
   const [name, setName] = useState("");
+  const [dataScope, setDataScope] = useState("personal");
   const [permissions, setPermissions] = useState([]);
 
   // Categorized Modules
@@ -39,10 +40,12 @@ export const RoleManagement = () => {
     if (role) {
       setEditingRole(role);
       setName(role.name);
+      setDataScope(role.dataScope || "personal");
       setPermissions(role.permissions || []);
     } else {
       setEditingRole(null);
       setName("");
+      setDataScope("personal");
       setPermissions([]);
     }
     setView('form');
@@ -153,12 +156,17 @@ export const RoleManagement = () => {
     e.preventDefault();
     try {
       // Clean up permissions to prevent Prisma nested create errors
-      const cleanPermissions = permissions.map(({ id, roleId, createdAt, updatedAt, ...rest }) => rest);
+      let cleanPermissions = permissions.map(({ id, roleId, createdAt, updatedAt, ...rest }) => rest);
+      
+      // Enforce data scope strictness on the frontend before sending
+      if (dataScope === "personal") {
+        cleanPermissions = cleanPermissions.filter(p => !masterDataModules.includes(p.module) && !reportModules.includes(p.module));
+      }
 
       if (editingRole) {
-        await api.patch(`/roles/${editingRole.id}`, { name, permissions: cleanPermissions });
+        await api.patch(`/roles/${editingRole.id}`, { name, dataScope, permissions: cleanPermissions });
       } else {
-        await api.post("/roles", { name, permissions: cleanPermissions });
+        await api.post("/roles", { name, dataScope, permissions: cleanPermissions });
       }
       handleCloseForm();
       fetchRoles();
@@ -190,16 +198,30 @@ export const RoleManagement = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="mb-8">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Role Name</label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full md:w-1/2 border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="e.g. Guard, Manager, Super Admin"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Role Name</label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="e.g. Guard, Manager, Super Admin"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Data Visibility Scope</label>
+              <select
+                value={dataScope}
+                onChange={(e) => setDataScope(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
+              >
+                <option value="personal">Personal (Own Records Only)</option>
+                <option value="departmental">Departmental (Department Records)</option>
+                <option value="global">Global (All Records)</option>
+              </select>
+            </div>
           </div>
 
           <h3 className="font-semibold mb-6 text-gray-800 text-lg border-b pb-3">Permissions Configuration</h3>
@@ -209,8 +231,8 @@ export const RoleManagement = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-lg font-bold text-gray-700">Master Data Permissions</h4>
-                <label className="flex items-center gap-1 cursor-pointer text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded">
-                  <input type="checkbox" onChange={(e) => handleSelectAllCategory('master', e.target.checked)} className="text-blue-600" /> Select All Master Data
+                <label className={`flex items-center gap-1 cursor-pointer text-sm font-semibold px-3 py-1 rounded ${dataScope === "personal" ? "text-gray-400 bg-gray-100 cursor-not-allowed" : "text-blue-600 bg-blue-50"}`}>
+                  <input type="checkbox" disabled={dataScope === "personal"} onChange={(e) => handleSelectAllCategory('master', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Select All Master Data
                 </label>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,20 +243,20 @@ export const RoleManagement = () => {
                     <div key={module} className="border rounded-lg bg-gray-50 p-4 flex justify-between items-center">
                       <span className="font-medium text-gray-800">{module}</span>
                       <div className="flex gap-3 text-sm">
-                        <label className="flex items-center gap-1 cursor-pointer font-semibold text-gray-700 border-r pr-3 border-gray-300">
-                          <input type="checkbox" checked={!!allChecked} onChange={(e) => handleSelectAllCrud(module, e.target.checked)} className="text-blue-600" /> All
+                        <label className={`flex items-center gap-1 cursor-pointer font-semibold border-r pr-3 border-gray-300 ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : "text-gray-700"}`}>
+                          <input type="checkbox" disabled={dataScope === "personal"} checked={!!allChecked && dataScope !== "personal"} onChange={(e) => handleSelectAllCrud(module, e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> All
                         </label>
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input type="checkbox" checked={!!p.canRead} onChange={(e) => handlePermissionChange(module, 'canRead', e.target.checked)} className="text-blue-600" /> Read
+                        <label className={`flex items-center gap-1 cursor-pointer ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : ""}`}>
+                          <input type="checkbox" disabled={dataScope === "personal"} checked={!!p.canRead && dataScope !== "personal"} onChange={(e) => handlePermissionChange(module, 'canRead', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Read
                         </label>
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input type="checkbox" checked={!!p.canCreate} onChange={(e) => handlePermissionChange(module, 'canCreate', e.target.checked)} className="text-blue-600" /> Create
+                        <label className={`flex items-center gap-1 cursor-pointer ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : ""}`}>
+                          <input type="checkbox" disabled={dataScope === "personal"} checked={!!p.canCreate && dataScope !== "personal"} onChange={(e) => handlePermissionChange(module, 'canCreate', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Create
                         </label>
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input type="checkbox" checked={!!p.canUpdate} onChange={(e) => handlePermissionChange(module, 'canUpdate', e.target.checked)} className="text-blue-600" /> Update
+                        <label className={`flex items-center gap-1 cursor-pointer ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : ""}`}>
+                          <input type="checkbox" disabled={dataScope === "personal"} checked={!!p.canUpdate && dataScope !== "personal"} onChange={(e) => handlePermissionChange(module, 'canUpdate', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Update
                         </label>
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input type="checkbox" checked={!!p.canDelete} onChange={(e) => handlePermissionChange(module, 'canDelete', e.target.checked)} className="text-blue-600" /> Delete
+                        <label className={`flex items-center gap-1 cursor-pointer ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : ""}`}>
+                          <input type="checkbox" disabled={dataScope === "personal"} checked={!!p.canDelete && dataScope !== "personal"} onChange={(e) => handlePermissionChange(module, 'canDelete', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Delete
                         </label>
                       </div>
                     </div>
@@ -324,8 +346,8 @@ export const RoleManagement = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-lg font-bold text-gray-700">Print & Report Features</h4>
-                <label className="flex items-center gap-1 cursor-pointer text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded">
-                  <input type="checkbox" onChange={(e) => handleSelectAllCategory('report', e.target.checked)} className="text-blue-600" /> Select All Report & Print
+                <label className={`flex items-center gap-1 cursor-pointer text-sm font-semibold px-3 py-1 rounded ${dataScope === "personal" ? "text-gray-400 bg-gray-100 cursor-not-allowed" : "text-blue-600 bg-blue-50"}`}>
+                  <input type="checkbox" disabled={dataScope === "personal"} onChange={(e) => handleSelectAllCategory('report', e.target.checked)} className={dataScope === "personal" ? "text-gray-400" : "text-blue-600"} /> Select All Report & Print
                 </label>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -338,8 +360,8 @@ export const RoleManagement = () => {
                       <span className="font-medium text-gray-800 block mb-3">{module}</span>
                       <div className="flex gap-4 text-sm flex-wrap">
                         {actionsList.map(action => (
-                          <label key={action} className="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" checked={!!dActions[action]} onChange={(e) => handlePermissionChange(module, action, e.target.checked, true)} className="text-blue-600 w-4 h-4" />
+                          <label key={action} className={`flex items-center gap-2 cursor-pointer ${dataScope === "personal" ? "text-gray-400 cursor-not-allowed" : ""}`}>
+                            <input type="checkbox" disabled={dataScope === "personal"} checked={!!dActions[action] && dataScope !== "personal"} onChange={(e) => handlePermissionChange(module, action, e.target.checked, true)} className={`w-4 h-4 ${dataScope === "personal" ? "text-gray-400" : "text-blue-600"}`} />
                             {action === 'print_setting' ? 'Print Setting' : action.replace(/^\w/, c => c.toUpperCase())}
                           </label>
                         ))}

@@ -23,6 +23,8 @@ var __importDefault =
 import * as express_1 from "express";
 import multer_1 from "multer";
 import * as gp_controller_1 from "../gate_pass/gp.controller.js";
+import { protect, requireToken } from "../../middleware/auth.middleware.js";
+
 const router = (0, express_1.Router)();
 // Memory storage — file.buffer is available in the controller/service
 const upload = (0, multer_1)({
@@ -60,10 +62,11 @@ router.post(
 );
 
 
-router.get("/dashboard/data", gp_controller_1.getDashboardData);
-router.get("/dashboard/stream", gp_controller_1.getDashboardStream);
-router.get("/", gp_controller_1.getPasses);
-router.get("/:id", gp_controller_1.getPassById);
-router.patch("/:id/status", gp_controller_1.updatePassStatus);
+// We protect all dashboard and read/update endpoints
+router.get("/dashboard/data", protect, gp_controller_1.getDashboardData);
+router.get("/dashboard/stream", protect, gp_controller_1.getDashboardStream);
+router.get("/", protect, gp_controller_1.getPasses);
+router.get("/:id", protect, gp_controller_1.getPassById);
+router.patch("/:id/status", protect, gp_controller_1.updatePassStatus);
 
 export default router;

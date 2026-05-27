@@ -12,13 +12,14 @@ import notificationRoutes from "./features/notifications/notification.routes.js"
 import gpRoutes from "./features/gate_pass/gp.routes.js";
 import masterRoutes from "./features/master/master.routes.js";
 import reportRoutes from "./features/report/report.routes.js";
+import { protect } from "./middleware/auth.middleware.js";
 
 const app = express();
 
 // 1. GLOBAL MIDDLEWARES
 // Implement CORS FIRST so error responses (like 429 or 400) include CORS headers
 app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
+  origin: process.env.CLIENT_URL,
   credentials: true
 }));
 
@@ -45,11 +46,11 @@ logger.info(`Routing requested`);
 
 // 2. ROUTES
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/roles", roleRoutes);
-app.use("/api/v1/notifications", notificationRoutes);
-app.use("/api/v1/capture", gpRoutes);
-app.use("/api/v1/master", masterRoutes);
-app.use("/api/v1/report", reportRoutes);
+app.use("/api/v1/roles", protect, roleRoutes);
+app.use("/api/v1/notifications", protect, notificationRoutes);
+app.use("/api/v1/capture", gpRoutes); // GP routes self-protect
+app.use("/api/v1/master", protect, masterRoutes);
+app.use("/api/v1/report", protect, reportRoutes);
 
 // Initialize Cron Job
 import { initCronJob } from "./utils/cron.js";

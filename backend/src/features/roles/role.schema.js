@@ -4,6 +4,7 @@ export const createRoleSchema = z.object({
   body: z.object({
     name: z.string({ required_error: "Role name is required" }),
     weight: z.number().int().min(1).max(100).optional(),
+    dataScope: z.string().optional(),
     permissions: z.array(
       z.object({
         module: z.string(),
@@ -21,6 +22,7 @@ export const updateRoleSchema = z.object({
   body: z.object({
     name: z.string().optional(),
     weight: z.number().int().min(1).max(100).optional(),
+    dataScope: z.string().optional(),
     permissions: z.array(
       z.object({
         module: z.string(),

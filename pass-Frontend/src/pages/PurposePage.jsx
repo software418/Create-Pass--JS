@@ -6,6 +6,7 @@ export const PurposePage = () => {
   return (
     <DynamicDataPage
       title="Visiting Purpose"
+      moduleName="Purpose"
       subtitle="Purpose of Visit"
       data={purposes}
       idKey="_id"

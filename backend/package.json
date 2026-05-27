@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon run src/server.js",
-    "seed:superadmin": "node src/scripts/seedSuperAdmin.js",
-    "seed:master": "node src/scripts/seedMasterData.js",
+    "seed:reset": "node src/scripts/resetDatabase.js",
+    "seed:master:add": "node src/scripts/seedMasterDataAdd.js",
+    "seed:master:reset": "node src/scripts/seedMasterDataReset.js",
     "build": "tsc",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",

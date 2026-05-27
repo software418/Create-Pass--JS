@@ -36,7 +36,6 @@ export const EmployeePage = () => {
   const formFields = useMemo(
     () => [
       { key: "name", label: "Full Name", required: true, placeholder: "Jane Doe" },
-      { key: "employeeId", label: "Employee ID", required: true, placeholder: "EMP-001" },
       { key: "email", label: "Email", type: "email", placeholder: "jane@company.com" },
       { key: "phone", label: "Phone", type: "tel", placeholder: "+1 555 000 0000" },
       { key: "password", label: "Account Password", type: "password", required: true, placeholder: "Secure password for login" },

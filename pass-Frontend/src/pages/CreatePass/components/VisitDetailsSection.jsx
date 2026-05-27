@@ -16,7 +16,7 @@ export const VisitDetailsSection = ({
   setFormData,
 }) => {
   const employeeOptions = employees.map(e => ({
-    value: e._id,
+    value: e.id || e._id,
     label: e.designation ? `${e.name} - ${e.designation}` : e.name
   }));
 

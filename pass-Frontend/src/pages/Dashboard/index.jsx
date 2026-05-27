@@ -80,7 +80,8 @@ export default function DashbordPage() {
 
     // SSE connection for Real-time database changes
     const apiUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1").trim();
-    const sseUrl = `${apiUrl}/capture/dashboard/stream`;
+    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken") || "";
+    const sseUrl = `${apiUrl}/capture/dashboard/stream?token=${token}`;
     console.log("Connecting to SSE stream:", sseUrl);
 
     const eventSource = new EventSource(sseUrl);
@@ -162,15 +163,15 @@ export default function DashbordPage() {
         @keyframes pulse {
           0% {
             transform: scale(0.9);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            opacity: 1;
           }
           70% {
-            transform: scale(1.1);
-            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            transform: scale(1.2);
+            opacity: 0.5;
           }
           100% {
             transform: scale(0.9);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            opacity: 1;
           }
         }
       `}</style>

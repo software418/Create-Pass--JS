@@ -48,6 +48,7 @@ export const NotificationBell = () => {
       <button 
         onClick={toggleDropdown}
         className="relative p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-label="Notifications"
       >
         <Bell className="w-6 h-6 text-gray-600" />
         {unreadCount > 0 && (

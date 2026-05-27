@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useAuth } from "@/features/auth/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
 // ─── Default status colors ───────────────────────────────────────────────────
 const DEFAULT_STATUS_COLORS = {
   active: "bg-green-50 text-green-800 border border-green-200",
@@ -88,6 +89,12 @@ const FullPageForm = ({ title, fields, initialValues = {}, onSubmit, onClose, li
     });
     return defaults;
   });
+  
+  const [visiblePasswords, setVisiblePasswords] = useState({});
+  const togglePasswordVisibility = (key) => {
+    setVisiblePasswords(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(values);
@@ -149,6 +156,39 @@ const FullPageForm = ({ title, fields, initialValues = {}, onSubmit, onClose, li
                         );
                       })}
                     </select>
+                  ) : field.type === "password" ? (
+                    <div className="relative flex items-center">
+                      <input
+                        type={visiblePasswords[field.key] ? "text" : "password"}
+                        id={field.key}
+                        name={field.key}
+                        value={values[field.key]}
+                        onChange={(e) =>
+                          setValues((v) => ({
+                            ...v,
+                            [field.key]: e.target.value,
+                          }))
+                        }
+                        placeholder={
+                          field.placeholder ??
+                          `Enter ${field.label.toLowerCase()}...`
+                        }
+                        required={field.required}
+                        className="dynamic-input pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility(field.key)}
+                        className="absolute right-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                        tabIndex="-1"
+                      >
+                        {visiblePasswords[field.key] ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   ) : (
                     <input
                       type={field.type ?? "text"}
@@ -329,16 +369,20 @@ export const DynamicDataPage = ({
     }
   };
   // ── CRUD ──
-  const handleCreate = (values) => {
-    canCreateAction?.(values);
-    setModalMode(null);
+  const handleCreate = async (values) => {
+    const success = await canCreateAction?.(values);
+    if (success !== false) {
+      setModalMode(null);
+    }
   };
-  const handleEdit = (values) => {
+  const handleEdit = async (values) => {
     if (!editRow) return;
     const id = String(editRow[idKey] ?? "");
-    canEditAction?.(id, values);
-    setModalMode(null);
-    setEditRow(null);
+    const success = await canEditAction?.(id, values);
+    if (success !== false) {
+      setModalMode(null);
+      setEditRow(null);
+    }
   };
   const handleDelete = (row) => {
     const id = String(row[idKey] ?? "");

@@ -188,10 +188,23 @@ const resolveDynamicStatus = (pass) => {
   }
   return pass.status;
 };
-const getPassesService = async (filters = {}) => {
+import { getAllowedHostIds } from "../../utils/scope.js";
+
+const getPassesService = async (filters = {}, user = null) => {
   try {
+    let finalFilters = { ...filters };
+    if (user) {
+      const allowedHosts = await getAllowedHostIds(user);
+      if (allowedHosts !== null) {
+        if (allowedHosts.length === 0) {
+          return []; // Scope restricts access entirely, return empty array immediately
+        }
+        finalFilters.toMeetWith = { in: allowedHosts };
+      }
+    }
+
     const passes = await prisma.formData.findMany({
-      where: filters,
+      where: finalFilters,
       include: {
         persons: true
       },
@@ -209,15 +222,27 @@ const getPassesService = async (filters = {}) => {
   }
 };
 
-const updatePassStatusService = async (idOrCode, status, updateData = {}) => {
+const updatePassStatusService = async (idOrCode, status, updateData = {}, user = null) => {
   try {
-    const pass = await prisma.formData.findFirst({
-      where: {
-        OR: [
-          { id: idOrCode },
-          { gatePassId: idOrCode }
-        ]
+    let finalFilters = {
+      OR: [
+        { id: idOrCode },
+        { gatePassId: idOrCode }
+      ]
+    };
+
+    if (user) {
+      const allowedHosts = await getAllowedHostIds(user);
+      if (allowedHosts !== null) {
+        if (allowedHosts.length === 0) {
+          throw new Error(`Permission denied: You do not have access to this pass.`);
+        }
+        finalFilters.toMeetWith = { in: allowedHosts };
       }
+    }
+
+    const pass = await prisma.formData.findFirst({
+      where: finalFilters
     });
 
     if (!pass) {
@@ -299,15 +324,24 @@ const updatePassStatusService = async (idOrCode, status, updateData = {}) => {
   }
 };
 
-const getPassByIdService = async (idOrCode) => {
+const getPassByIdService = async (idOrCode, user = null) => {
   try {
+    let baseWhere = {
+      OR: [
+        { id: idOrCode },
+        { gatePassId: idOrCode }
+      ]
+    };
+
+    if (user) {
+      const allowedHosts = await getAllowedHostIds(user);
+      if (allowedHosts !== null) {
+        baseWhere.toMeetWith = { in: allowedHosts };
+      }
+    }
+
     const pass = await prisma.formData.findFirst({
-      where: {
-        OR: [
-          { id: idOrCode },
-          { gatePassId: idOrCode }
-        ]
-      },
+      where: baseWhere,
       include: {
         persons: true
       }
@@ -322,9 +356,28 @@ const getPassByIdService = async (idOrCode) => {
   }
 };
 
-const getDashboardDataService = async () => {
+const getDashboardDataService = async (user = null) => {
   try {
+    let finalFilters = {};
+    if (user) {
+      const allowedHosts = await getAllowedHostIds(user);
+      if (allowedHosts !== null) {
+        if (allowedHosts.length === 0) {
+          // Empty scope, return zeroed data immediately
+          return {
+            totalPasses: 0,
+            statusCounts: {},
+            passesByPurpose: {},
+            recentPasses: [],
+            upcomingPasses: []
+          };
+        }
+        finalFilters.toMeetWith = { in: allowedHosts };
+      }
+    }
+
     const passes = await prisma.formData.findMany({
+      where: finalFilters,
       include: {
         persons: true
       },

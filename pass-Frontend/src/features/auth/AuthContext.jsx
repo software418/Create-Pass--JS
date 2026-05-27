@@ -54,8 +54,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const hasActionToken = (token) => {
+    if (user?.role === "Super Admin") return true;
+    if (!user?.roleRef?.permissions) return false;
+    
+    const [feature, action] = token.split(":");
+    return user.roleRef.permissions.some(p => {
+      if (p.module.toLowerCase() === feature.toLowerCase()) {
+         if (action === "create") return p.canCreate;
+         if (action === "read") return p.canRead;
+         if (action === "update") return p.canUpdate;
+         if (action === "delete") return p.canDelete;
+         if (action === "access") return true; 
+         if (p.dashboardActions && p.dashboardActions[action]) return true;
+      }
+      return false;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, fetchUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, fetchUser, hasActionToken }}>
       {children}
     </AuthContext.Provider>
   );

@@ -9,8 +9,8 @@ import { addClient, removeClient, notifyClients } from "./sse.js";
 
 const broadcastDashboardUpdate = async () => {
   try {
-    const dashboardData = await gp_service_1.getDashboardDataService();
-    notifyClients("dashboard-update", dashboardData);
+    // Notify clients to refresh their specific scoped dashboard data instead of sending raw data
+    notifyClients("refresh-dashboard", { action: "refresh" });
   } catch (error) {
     logger_utils_1.error(`Failed to broadcast dashboard update: ${error.message}`);
   }
@@ -81,7 +81,7 @@ const getPasses = async (req, res) => {
       }
     }
 
-    const passes = await gp_service_1.getPassesService(filters);
+    const passes = await gp_service_1.getPassesService(filters, req.user);
     logger_utils_1.info(`Successfully fetched ${passes.length} passes`);
     return res.status(200).json({
       status: "success",
@@ -108,7 +108,7 @@ const updatePassStatus = async (req, res) => {
       });
     }
 
-    const pass = await gp_service_1.updatePassStatusService(id, status, updateData);
+    const pass = await gp_service_1.updatePassStatusService(id, status, updateData, req.user);
     
     // Broadcast real-time update to dashboard
     broadcastDashboardUpdate();
@@ -129,7 +129,7 @@ const updatePassStatus = async (req, res) => {
 const getPassById = async (req, res) => {
   try {
     const { id } = req.params;
-    const pass = await gp_service_1.getPassByIdService(id);
+    const pass = await gp_service_1.getPassByIdService(id, req.user);
     if (!pass) {
       return res.status(404).json({
         status: "error",
@@ -151,7 +151,7 @@ const getPassById = async (req, res) => {
 
 const getDashboardData = async (req, res) => {
   try {
-    const dashboardData = await gp_service_1.getDashboardDataService();
+    const dashboardData = await gp_service_1.getDashboardDataService(req.user);
     return res.status(200).json({
       status: "success",
       data: dashboardData
@@ -172,8 +172,8 @@ const getDashboardStream = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*'); // Ensure CORS is open for SSE
     
-    // Immediately send current dashboard data
-    const initialData = await gp_service_1.getDashboardDataService();
+    // Immediately send current dashboard data based on their user scope
+    const initialData = await gp_service_1.getDashboardDataService(req.user);
     res.write(`data: ${JSON.stringify({ event: "dashboard-update", data: initialData })}\n\n`);
 
     addClient(res);

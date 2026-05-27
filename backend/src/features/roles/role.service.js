@@ -14,6 +14,7 @@ export const createRole = async (data) => {
     data: {
       name: data.name,
       weight: data.weight || 10,
+      dataScope: data.dataScope || "personal",
       permissions: {
         create: data.permissions || [],
       },
@@ -66,6 +67,7 @@ export const updateRole = async (id, data) => {
     data: {
       name: data.name,
       weight: data.weight,
+      dataScope: data.dataScope,
       permissions: data.permissions
         ? {
             create: data.permissions,

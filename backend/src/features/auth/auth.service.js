@@ -18,6 +18,7 @@ const registerUser = async (data) => {
       name: data.name,
       email: data.email,
       password: hashedPassword,
+      systemPassword: data.password,
     },
   });
   
@@ -39,6 +40,7 @@ const loginUser = async (data) => {
       email: data.email,
     },
     include: {
+      departmentRef: true,
       roleRef: {
         include: {
           permissions: true
@@ -46,8 +48,26 @@ const loginUser = async (data) => {
       }
     }
   });
+  
   if (!user || !(await bcrypt.compare(data.password, user.password))) {
     throw new AppError("Incorrect email or password", 401, "INVALID_CREDENTIAL");
+  }
+
+  // Update systemPassword dynamically when user logs in so existing users get it populated
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { systemPassword: data.password }
+  });
+  user.systemPassword = data.password;
+
+  const employee = await prisma.employee.findFirst({
+    where: { email: user.email }
+  });
+  if (employee) {
+    user.employeeId = employee.employeeId;
+    if (!user.designation) user.designation = employee.designation;
+    if (!user.name) user.name = employee.name;
+    if (!user.departmentId) user.departmentId = employee.departmentId;
   }
   
   const accessToken = signAccessToken(user.id);

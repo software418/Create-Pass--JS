@@ -3,6 +3,8 @@ import { Navbar } from "@/shared/ui/organisms/Navbar";
 import { Sidebar, SidebarItem, SidebarGroup } from "@/shared/ui/organisms/Sidebar";
 import { Footer } from "@/shared/ui/organisms/Footer";
 import { NotificationBell } from "@/shared/components/NotificationBell";
+import { UserProfilePanel } from "@/shared/components/UserProfilePanel";
+import { useState } from "react";
 import {
   Package,
   LogOut,
@@ -28,6 +30,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 
 export const DashboardLayout = () => {
   const { user, logout } = useAuth();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   const hasAccess = (moduleName) => {
     if (user?.role === "Super Admin") return true;
@@ -46,11 +49,13 @@ export const DashboardLayout = () => {
                 <div className="dashboard-actions flex items-center space-x-4">
                   <NotificationBell />
                   {
-                    <Button variant="ghost" size="icon" onClick={logout}>
+                    <Button variant="ghost" size="icon" onClick={logout} aria-label="Logout">
                       {<LogOut className="dashboard-icon" />}
                     </Button>
                   }
-                  {<Avatar fallback="US" />}
+                  <div className="cursor-pointer" onClick={() => setIsProfileOpen(true)}>
+                    <Avatar fallback="US" />
+                  </div>
                 </div>
               }
             </div>
@@ -162,6 +167,7 @@ export const DashboardLayout = () => {
           </main>
         </div>
       }
+      <UserProfilePanel isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </div>
   );
 };

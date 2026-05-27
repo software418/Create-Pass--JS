@@ -20,7 +20,7 @@ export const getReport = async (req, res, next) => {
       }
     }
 
-    const passes = await reportService.getReportPassesService(filters);
+    const passes = await reportService.getReportPassesService(filters, req.user);
     logger.info(`[Report Controller] Successfully fetched ${passes.length} passes for report`);
     return res.status(200).json({
       success: true,

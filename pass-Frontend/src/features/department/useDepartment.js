@@ -22,7 +22,8 @@ export const useDepartment = () => {
         items.map((item) => ({ ...item, _id: item._id ?? item.id })),
       );
     } catch (err) {
-      getApiError(err, "Failed to fetch departments. Please try again.");
+      const errMsg = getApiError(err, "Failed to fetch departments. Please try again.");
+      setError(errMsg);
     } finally {
       setIsLoading(false);
     }
@@ -39,7 +40,8 @@ export const useDepartment = () => {
       ]);
       return true;
     } catch (err) {
-      getApiError(err, "Failed to create department record.");
+      const errMsg = getApiError(err, "Failed to create department record.");
+      setError(errMsg);
       return false;
     }
   };
@@ -58,7 +60,8 @@ export const useDepartment = () => {
       );
       return true;
     } catch (err) {
-      getApiError(err, "Failed to update department details.");
+      const errMsg = getApiError(err, "Failed to update department details.");
+      setError(errMsg);
       return false;
     }
   };
@@ -71,10 +74,11 @@ export const useDepartment = () => {
     try {
       await deleteDepartment(id);
     } catch (err) {
-      getApiError(
+      const errMsg = getApiError(
         err,
         "Failed to remove department. Reverting table configuration.",
       );
+      setError(errMsg);
       setdepartment(originalList); // Rollback on API failure
     }
   };
